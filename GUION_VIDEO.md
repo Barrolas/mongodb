@@ -38,7 +38,7 @@
 
 **Pantalla:**
 - **Diapositiva 1:** Portada del proyecto
-  - Título: "Migración de Oracle a MongoDB"
+  - Título: "MIGRACIÓN DE ORACLE A MONGODB: UNA TRANSFORMACIÓN NO-SQL"
   - Subtítulo: "Pastelería Mil Sabores"
   - Integrantes: Nicole Chavez, Nicolás Barra
   - Logo/Imagen de pastelería (opcional)
