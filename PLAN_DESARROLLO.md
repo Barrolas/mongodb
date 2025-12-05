@@ -198,6 +198,18 @@ db.auditoria.createIndex({ tipo: 1, fecha_evento: -1 })
 - Migrar pedidos (con detalles embebidos)
 - Validar integridad de datos
 
+**📹 Para el Video:**
+- Los scripts son ejecutables automáticamente, PERO en el video deben mostrar:
+  - **MongoDB Compass** o **MongoDB Atlas** (interfaz gráfica)
+  - Ejecutar comandos uno por uno en la consola de Compass/Atlas
+  - Mostrar los resultados visualmente en la interfaz
+  - Explicar cada paso mientras lo ejecutan
+
+**💡 Estrategia:**
+- Crear scripts completos para el documento entregable
+- En el video, copiar y ejecutar comandos individuales desde los scripts
+- Mostrar la interfaz gráfica de MongoDB para que sea visual
+
 ### 2.3 Scripts CRUD - CREATE
 
 **Archivo:** `03_crud_create.js`
@@ -205,6 +217,26 @@ db.auditoria.createIndex({ tipo: 1, fecha_evento: -1 })
 - `insertOne()` - Insertar un producto
 - `insertMany()` - Insertar múltiples productos
 - `insertOne()` - Crear un pedido completo (con detalles embebidos)
+
+**📹 Para el Video:**
+- **Mostrar en MongoDB Compass/Atlas:**
+  1. Abrir la colección correspondiente
+  2. Ir a la pestaña "Documents" o "Collections"
+  3. Ejecutar el comando en la consola (mongosh integrado)
+  4. Mostrar el documento insertado en la vista de documentos
+  5. Explicar la estructura del documento creado
+
+**Ejemplo de demostración:**
+```javascript
+// En la consola de Compass/Atlas, ejecutar:
+db.clientes.insertOne({
+  nombre: "Juan",
+  apellido_paterno: "Pérez",
+  correo: "juan@example.com"
+})
+
+// Luego mostrar en la vista de documentos cómo aparece
+```
 
 ### 2.4 Scripts CRUD - READ
 
@@ -219,6 +251,24 @@ db.auditoria.createIndex({ tipo: 1, fecha_evento: -1 })
   - `$nin` - Productos que NO están en ciertas categorías
   - `$regex` - Búsqueda de texto (nombres de productos, clientes)
 
+**📹 Para el Video:**
+- **Mostrar en MongoDB Compass/Atlas:**
+  1. Usar el **filtro visual** de Compass para algunos ejemplos
+  2. Mostrar también la **consola** con el comando completo
+  3. Ejecutar cada operador uno por uno
+  4. Mostrar los resultados en la tabla de documentos
+  5. Explicar qué hace cada operador
+
+**Ejemplo de demostración:**
+```javascript
+// Mostrar en Compass:
+// 1. Usar el filtro visual: { precio: { $gt: 20000 } }
+// 2. Luego mostrar el comando equivalente:
+db.productos.find({ precio: { $gt: 20000 } })
+
+// 3. Mostrar los resultados filtrados en la interfaz
+```
+
 ### 2.5 Scripts CRUD - UPDATE
 
 **Archivo:** `05_crud_update.js`
@@ -227,6 +277,25 @@ db.auditoria.createIndex({ tipo: 1, fecha_evento: -1 })
 - `updateMany()` - Actualizar precios de múltiples productos
 - `updateOne()` con `$set`, `$inc`, `$push`, `$pull`
 
+**📹 Para el Video:**
+- **Mostrar en MongoDB Compass/Atlas:**
+  1. Mostrar el documento ANTES de la actualización
+  2. Ejecutar el comando de actualización en la consola
+  3. Mostrar el documento DESPUÉS de la actualización
+  4. Explicar los operadores `$set`, `$inc`, etc.
+  5. Mostrar cómo se ve en la interfaz gráfica
+
+**Ejemplo de demostración:**
+```javascript
+// 1. Mostrar documento actual (stock: 100)
+// 2. Ejecutar:
+db.productos.updateOne(
+  { _id: ObjectId("...") },
+  { $inc: { stock: -5 } }
+)
+// 3. Mostrar documento actualizado (stock: 95)
+```
+
 ### 2.6 Scripts CRUD - DELETE
 
 **Archivo:** `06_crud_delete.js`
@@ -234,9 +303,25 @@ db.auditoria.createIndex({ tipo: 1, fecha_evento: -1 })
 - `deleteOne()` - Eliminar un producto
 - `deleteMany()` - Eliminar pedidos cancelados antiguos
 
+**📹 Para el Video:**
+- **Mostrar en MongoDB Compass/Atlas:**
+  1. Mostrar los documentos que se van a eliminar
+  2. Ejecutar el comando de eliminación
+  3. Verificar que desaparecieron de la colección
+  4. Explicar la diferencia entre `deleteOne()` y `deleteMany()`
+  5. **⚠️ Advertencia:** Explicar que las eliminaciones son permanentes
+
 ### 2.7 Consultas Avanzadas con aggregate()
 
 **Archivo:** `07_consultas_avanzadas.js`
+
+**📹 Para el Video:**
+- **Mostrar en MongoDB Compass/Atlas:**
+  1. Usar la pestaña **"Aggregations"** de Compass (interfaz visual)
+  2. Mostrar cómo se construye el pipeline paso a paso
+  3. Ejecutar cada etapa y mostrar resultados intermedios
+  4. Luego mostrar el comando completo en la consola
+  5. Explicar cada operador del pipeline (`$unwind`, `$group`, `$lookup`, etc.)
 
 **Consulta 1:** Ventas totales por categoría (con $group, $lookup)
 ```javascript
@@ -283,9 +368,77 @@ db.pedidos.aggregate([
 ])
 ```
 
+**💡 Recomendación para el Video:**
+- Usar **MongoDB Compass** es ideal porque tiene:
+  - Interfaz visual para agregaciones
+  - Vista de documentos amigable
+  - Consola integrada (mongosh)
+  - Filtros visuales
+  - Exportación de resultados
+
 ---
 
 ## 📊 FASE 3: PREPARACIÓN DE PRESENTACIÓN (3-4 días)
+
+### 3.0 Preparación del Entorno para la Grabación
+
+**📹 Herramientas Necesarias:**
+
+1. **MongoDB Compass** (Recomendado para video)
+   - Descarga: https://www.mongodb.com/try/download/compass
+   - Interfaz gráfica amigable
+   - Consola integrada (mongosh)
+   - Vista de agregaciones visual
+   - Filtros visuales
+   - **Ventaja:** Muy visual para el video
+
+2. **MongoDB Atlas** (Alternativa)
+   - Cuenta gratuita: https://www.mongodb.com/cloud/atlas
+   - Interfaz web
+   - No requiere instalación
+   - **Ventaja:** Accesible desde cualquier lugar
+
+3. **Software de Grabación:**
+   - OBS Studio (gratis)
+   - Windows Game Bar (Windows 10/11)
+   - QuickTime (Mac)
+   - Loom, Screencast-O-Matic (online)
+
+**🔧 Configuración Pre-Grabación:**
+
+1. **Preparar la Base de Datos:**
+   - Ejecutar todos los scripts de creación
+   - Insertar datos de ejemplo suficientes
+   - Verificar que todo funciona correctamente
+   - Tener datos variados para las demostraciones
+
+2. **Preparar MongoDB Compass:**
+   - Conectar a la base de datos
+   - Abrir las colecciones principales
+   - Ajustar tamaño de fuente (para que se vea bien en video)
+   - Configurar tema claro (mejor para grabación)
+
+3. **Preparar Scripts:**
+   - Tener los scripts abiertos en un editor
+   - Copiar comandos individuales para ejecutar
+   - Tener comentarios listos para explicar
+
+4. **Checklist Pre-Grabación:**
+   - [ ] MongoDB Compass instalado y funcionando
+   - [ ] Base de datos con datos de ejemplo
+   - [ ] Scripts probados y funcionando
+   - [ ] Presentación (PPT/Canva) lista
+   - [ ] Guión del video preparado
+   - [ ] Audio/micrófono probado
+   - [ ] Resolución de pantalla adecuada (1920x1080 recomendado)
+
+**💡 Tips para la Grabación:**
+- Usar fuente grande en Compass (se ve mejor en video)
+- Zoom al 100% o 125% para mejor legibilidad
+- Pausar entre secciones para editar después
+- Hablar claro y pausado
+- Mostrar el cursor moviéndose por la interfaz
+- Resaltar los resultados con el cursor
 
 ### 3.1 Estructura del Video (10-20 minutos)
 
@@ -323,43 +476,92 @@ db.pedidos.aggregate([
 
 #### **PARTE 3: CRUD - CREATE (2-3 min)**
 **Responsable:** Integrante 1
-- **Pantalla grabada:**
-  - `insertOne()` - Insertar un cliente nuevo
-  - `insertMany()` - Insertar múltiples productos
-  - `insertOne()` - Crear un pedido completo
-- Explicar cada operación
+- **Pantalla grabada en MongoDB Compass/Atlas:**
+  - Abrir MongoDB Compass y conectar a la base de datos
+  - Mostrar la interfaz: colecciones, documentos
+  - **Ejecutar en la consola de Compass:**
+    - `insertOne()` - Insertar un cliente nuevo
+      - Mostrar el comando en la consola
+      - Mostrar el documento creado en la vista de documentos
+    - `insertMany()` - Insertar múltiples productos
+      - Ejecutar el comando
+      - Mostrar los documentos insertados en la tabla
+    - `insertOne()` - Crear un pedido completo (con detalles embebidos)
+      - Mostrar la estructura del documento con detalles anidados
+      - Explicar cómo se ve en MongoDB vs cómo sería en SQL
+- Explicar cada operación mientras se ejecuta
 
 #### **PARTE 4: CRUD - READ (2-3 min)**
 **Responsable:** Integrante 2
-- **Pantalla grabada:**
-  - `find()` básico
-  - `findOne()` 
-  - Filtros con operadores:
-    - `$gt`, `$lt`, `$ne`
-    - `$in`, `$nin`
-    - `$regex` para búsqueda de texto
-- Mostrar resultados en pantalla
+- **Pantalla grabada en MongoDB Compass/Atlas:**
+  - **Usar filtros visuales de Compass:**
+    - Mostrar cómo usar el filtro visual para `find()` básico
+    - Luego mostrar el comando equivalente en la consola
+  - **Ejecutar en la consola:**
+    - `findOne()` - Mostrar un documento específico
+    - **Filtros con operadores (uno por uno):**
+      - `$gt` - Productos con precio mayor a 20000
+        - Usar filtro visual: `{ precio: { $gt: 20000 } }`
+        - Mostrar comando: `db.productos.find({ precio: { $gt: 20000 } })`
+        - Mostrar resultados en la tabla
+      - `$lt` - Productos con stock menor a 50
+      - `$ne` - Pedidos que NO están cancelados
+      - `$in` - Productos de categorías específicas
+      - `$nin` - Productos que NO están en ciertas categorías
+      - `$regex` - Búsqueda de texto (nombres de productos)
+        - Ejemplo: `db.productos.find({ nombre: { $regex: /chocolate/i } })`
+- Mostrar resultados en pantalla y explicar cada operador
 
 #### **PARTE 5: CRUD - UPDATE (1-2 min)**
 **Responsable:** Integrante 1
-- **Pantalla grabada:**
-  - `updateOne()` - Actualizar stock
-  - `updateMany()` - Actualizar precios
-  - Mostrar antes/después
+- **Pantalla grabada en MongoDB Compass/Atlas:**
+  - **Mostrar documento ANTES:**
+    - Abrir un producto, mostrar su stock actual (ej: 100)
+  - **Ejecutar en la consola:**
+    - `updateOne()` - Actualizar stock
+      - Comando: `db.productos.updateOne({ _id: ... }, { $inc: { stock: -5 } })`
+      - Explicar `$inc` (incrementar/decrementar)
+    - `updateMany()` - Actualizar precios de múltiples productos
+      - Comando: `db.productos.updateMany({ categoria: "..." }, { $set: { precio: nuevo_precio } })`
+      - Explicar `$set` (establecer valor)
+  - **Mostrar documento DESPUÉS:**
+    - Refrescar la vista, mostrar el stock actualizado (ej: 95)
+- Mostrar antes/después claramente
 
 #### **PARTE 6: CRUD - DELETE (1 min)**
 **Responsable:** Integrante 2
-- **Pantalla grabada:**
-  - `deleteOne()` 
-  - `deleteMany()`
-  - Explicar precauciones
+- **Pantalla grabada en MongoDB Compass/Atlas:**
+  - **Mostrar documentos que se eliminarán:**
+    - Mostrar en la tabla los documentos que cumplen el criterio
+  - **Ejecutar en la consola:**
+    - `deleteOne()` - Eliminar un cliente específico
+      - Mostrar el comando y ejecutarlo
+      - Verificar que desapareció de la colección
+    - `deleteMany()` - Eliminar pedidos cancelados antiguos
+      - Ejemplo: `db.pedidos.deleteMany({ estado: "Cancelado", fecha_pedido: { $lt: ... } })`
+      - Mostrar cuántos documentos se eliminaron
+  - **⚠️ Explicar precauciones:**
+    - Las eliminaciones son permanentes
+    - Siempre verificar el filtro antes de ejecutar
 
 #### **PARTE 7: Consultas Avanzadas (3-4 min)**
 **Responsable:** Ambos (1-2 consultas cada uno)
-- **Pantalla grabada:**
-  - Consulta 1 con `aggregate()` - Explicar pipeline
-  - Consulta 2 con `aggregate()` - Mostrar resultados
-  - Consulta 3 con `aggregate()` - Comparar con SQL equivalente
+- **Pantalla grabada en MongoDB Compass/Atlas:**
+  - **Usar la pestaña "Aggregations" de Compass:**
+    - Mostrar la interfaz visual de agregaciones
+    - Construir el pipeline paso a paso visualmente
+  - **Ejecutar en la consola:**
+    - **Consulta 1 con `aggregate()`** - Ventas por categoría
+      - Explicar cada etapa del pipeline: `$unwind`, `$lookup`, `$group`
+      - Mostrar resultados intermedios
+      - Mostrar resultado final
+    - **Consulta 2 con `aggregate()`** - Top 5 productos más vendidos
+      - Pipeline: `$unwind`, `$group`, `$sort`, `$limit`
+      - Mostrar resultados
+    - **Consulta 3 con `aggregate()`** - Comparar con SQL equivalente
+      - Mostrar cómo sería en SQL (JOIN, GROUP BY)
+      - Mostrar cómo es en MongoDB (aggregate pipeline)
+      - Explicar diferencias y ventajas
 
 #### **CIERRE (1 min)**
 - Resumen de lo aprendido
