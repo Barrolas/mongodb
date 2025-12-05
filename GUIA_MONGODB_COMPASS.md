@@ -6,7 +6,20 @@ Esta guía te ayudará a mostrar las operaciones MongoDB de forma visual y profe
 
 ## 📋 Instalación y Configuración
 
-### 1. Instalar MongoDB Compass
+### 1. Instalar MongoDB Community Edition
+
+**Descarga:** https://www.mongodb.com/try/download/community
+
+**Pasos:**
+1. Descargar MongoDB Community Edition para tu sistema operativo
+2. Instalar siguiendo el asistente
+3. **Windows:** El servicio se iniciará automáticamente
+4. **Mac/Linux:** Iniciar el servicio manualmente si es necesario
+5. Verificar que MongoDB está corriendo:
+   - Windows: Verificar en "Servicios" que MongoDB está activo
+   - Mac/Linux: `brew services list` o `sudo systemctl status mongod`
+
+### 2. Instalar MongoDB Compass
 
 **Descarga:** https://www.mongodb.com/try/download/compass
 
@@ -15,18 +28,23 @@ Esta guía te ayudará a mostrar las operaciones MongoDB de forma visual y profe
 2. Instalar (siguiente, siguiente, instalar)
 3. Abrir la aplicación
 
-### 2. Conectar a MongoDB
+### 3. Conectar a MongoDB Local
 
-**Opción A: MongoDB Local**
+**Conexión a MongoDB Community Edition:**
 ```
 mongodb://localhost:27017
 ```
 
-**Opción B: MongoDB Atlas (Recomendado para video)**
-1. Crear cuenta en https://www.mongodb.com/cloud/atlas
-2. Crear cluster gratuito
-3. Obtener connection string
-4. Pegar en Compass y conectar
+**Pasos:**
+1. Abrir MongoDB Compass
+2. En la pantalla de conexión, pegar: `mongodb://localhost:27017`
+3. Clic en "Connect"
+4. Si la conexión es exitosa, verás las bases de datos disponibles
+
+**⚠️ Si no conecta:**
+- Verificar que el servicio MongoDB está corriendo
+- Verificar que el puerto 27017 no está bloqueado
+- Revisar los logs de MongoDB para errores
 
 ---
 

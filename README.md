@@ -38,19 +38,44 @@ mongodb/
 ## 🚀 Instalación y Configuración
 
 ### Requisitos
-- MongoDB instalado localmente O
-- Cuenta en MongoDB Atlas (gratis)
+- **MongoDB Community Edition** (instalación local)
+- **MongoDB Compass** (interfaz gráfica)
 
-### Opción 1: MongoDB Local
-1. Descargar MongoDB Community Server: https://www.mongodb.com/try/download/community
-2. Instalar y ejecutar el servicio
-3. Usar MongoDB Shell (mongosh) o MongoDB Compass
+### Instalación de MongoDB Community Edition
 
-### Opción 2: MongoDB Atlas (Recomendado)
-1. Crear cuenta gratuita en: https://www.mongodb.com/cloud/atlas
-2. Crear un cluster gratuito
-3. Obtener connection string
-4. Conectar desde mongosh o Compass
+1. **Descargar MongoDB Community Server:**
+   - URL: https://www.mongodb.com/try/download/community
+   - Seleccionar tu sistema operativo (Windows/Mac/Linux)
+   - Descargar la versión más reciente
+
+2. **Instalar MongoDB:**
+   - **Windows:** Ejecutar el instalador y seguir el asistente
+     - El servicio se instalará automáticamente
+     - Verificar en "Servicios" que MongoDB está corriendo
+   - **Mac:** Usar Homebrew: `brew install mongodb-community`
+   - **Linux:** Seguir instrucciones según tu distribución
+
+3. **Verificar Instalación:**
+   ```bash
+   mongosh --version
+   ```
+   - Debería mostrar la versión instalada
+
+4. **Iniciar MongoDB:**
+   - **Windows:** El servicio inicia automáticamente
+   - **Mac/Linux:** `brew services start mongodb-community` o `sudo systemctl start mongod`
+
+### Instalación de MongoDB Compass
+
+1. **Descargar MongoDB Compass:**
+   - URL: https://www.mongodb.com/try/download/compass
+   - Descargar para tu sistema operativo
+
+2. **Instalar y Conectar:**
+   - Instalar MongoDB Compass
+   - Abrir la aplicación
+   - Conectar a: `mongodb://localhost:27017`
+   - Verificar conexión exitosa
 
 ## 📖 Uso de los Scripts
 

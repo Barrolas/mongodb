@@ -384,19 +384,21 @@ db.pedidos.aggregate([
 
 **📹 Herramientas Necesarias:**
 
-1. **MongoDB Compass** (Recomendado para video)
+1. **MongoDB Community Edition** (Base de datos local)
+   - Descarga: https://www.mongodb.com/try/download/community
+   - Versión gratuita y completa
+   - Instalación local en Windows/Mac/Linux
+   - Incluye el servidor MongoDB y mongosh (shell)
+   - **Conexión:** `mongodb://localhost:27017`
+
+2. **MongoDB Compass** (Interfaz gráfica - REQUERIDO para video)
    - Descarga: https://www.mongodb.com/try/download/compass
-   - Interfaz gráfica amigable
+   - Interfaz gráfica amigable para visualizar datos
    - Consola integrada (mongosh)
    - Vista de agregaciones visual
    - Filtros visuales
    - **Ventaja:** Muy visual para el video
-
-2. **MongoDB Atlas** (Alternativa)
-   - Cuenta gratuita: https://www.mongodb.com/cloud/atlas
-   - Interfaz web
-   - No requiere instalación
-   - **Ventaja:** Accesible desde cualquier lugar
+   - **Conexión:** Conectar a `mongodb://localhost:27017`
 
 3. **Software de Grabación:**
    - OBS Studio (gratis)
@@ -406,25 +408,44 @@ db.pedidos.aggregate([
 
 **🔧 Configuración Pre-Grabación:**
 
-1. **Preparar la Base de Datos:**
-   - Ejecutar todos los scripts de creación
+1. **Instalar MongoDB Community Edition:**
+   - Descargar desde: https://www.mongodb.com/try/download/community
+   - Seleccionar versión para tu sistema operativo (Windows/Mac/Linux)
+   - Instalar siguiendo el asistente
+   - **Windows:** Se instalará como servicio automáticamente
+   - **Mac/Linux:** Seguir instrucciones de instalación
+   - Verificar que el servicio está corriendo:
+     - Windows: Servicios → MongoDB
+     - Mac/Linux: `sudo systemctl status mongod` o `brew services list`
+
+2. **Instalar MongoDB Compass:**
+   - Descargar desde: https://www.mongodb.com/try/download/compass
+   - Instalar MongoDB Compass
+   - Abrir Compass
+   - Conectar a: `mongodb://localhost:27017`
+   - Verificar conexión exitosa
+
+3. **Preparar la Base de Datos:**
+   - Ejecutar todos los scripts de creación desde mongosh o Compass
    - Insertar datos de ejemplo suficientes
    - Verificar que todo funciona correctamente
    - Tener datos variados para las demostraciones
 
-2. **Preparar MongoDB Compass:**
-   - Conectar a la base de datos
+4. **Preparar MongoDB Compass para Video:**
+   - Conectar a la base de datos local (`mongodb://localhost:27017`)
    - Abrir las colecciones principales
-   - Ajustar tamaño de fuente (para que se vea bien en video)
+   - Ajustar tamaño de fuente (View → Font Size → Large)
    - Configurar tema claro (mejor para grabación)
+   - Probar la consola integrada (mongosh)
 
-3. **Preparar Scripts:**
+5. **Preparar Scripts:**
    - Tener los scripts abiertos en un editor
    - Copiar comandos individuales para ejecutar
    - Tener comentarios listos para explicar
 
-4. **Checklist Pre-Grabación:**
-   - [ ] MongoDB Compass instalado y funcionando
+6. **Checklist Pre-Grabación:**
+   - [ ] MongoDB Community Edition instalado y servicio corriendo
+   - [ ] MongoDB Compass instalado y conectado a localhost
    - [ ] Base de datos con datos de ejemplo
    - [ ] Scripts probados y funcionando
    - [ ] Presentación (PPT/Canva) lista
