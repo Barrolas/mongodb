@@ -27,12 +27,12 @@ db.clientes.drop();
 db.pedidos.drop();
 db.auditoria.drop();
 db.reportes.drop();
-print('✅ Colecciones limpiadas\n');
+print('Colecciones limpiadas\n');
 
 // ====================================================================
 // CREAR COLECCIONES
 // ====================================================================
-print('📦 Creando colecciones...');
+print('Creando colecciones...');
 
 // Las colecciones se crean automáticamente al insertar datos
 // Pero podemos crearlas explícitamente si queremos opciones
@@ -43,12 +43,12 @@ db.createCollection('pedidos');
 db.createCollection('auditoria');
 db.createCollection('reportes');
 
-print('✅ Colecciones creadas\n');
+print('Colecciones creadas\n');
 
 // ====================================================================
 // CREAR ÍNDICES
 // ====================================================================
-print('🔍 Creando índices...');
+print('Creando índices...');
 
 // Índices para productos
 db.productos.createIndex({ "categoria._id": 1 }, { name: "idx_categoria" });
@@ -69,12 +69,12 @@ db.pedidos.createIndex({ estado: 1 }, { name: "idx_estado" });
 db.auditoria.createIndex({ fecha_evento: -1 }, { name: "idx_fecha_evento" });
 db.auditoria.createIndex({ tipo: 1, fecha_evento: -1 }, { name: "idx_tipo_fecha" });
 
-print('✅ Índices creados\n');
+print('Índices creados\n');
 
 // ====================================================================
 // INSERTAR DATOS INICIALES - CATEGORÍAS
 // ====================================================================
-print('📂 Insertando categorías...');
+print('Insertando categorías...');
 
 const categorias = [
   { slug: 'tortas-cuadradas', nombre: 'Tortas Cuadradas', icono: 'fas fa-square' },
@@ -88,7 +88,7 @@ const categorias = [
 ];
 
 const resultadoCategorias = db.categorias.insertMany(categorias);
-print(`✅ ${resultadoCategorias.insertedIds.length} categorías insertadas\n`);
+print(`${resultadoCategorias.insertedIds.length} categorías insertadas\n`);
 
 // Guardar los IDs de categorías para usar en productos
 const categoriasIds = {};
@@ -99,7 +99,7 @@ db.categorias.find({}).forEach(cat => {
 // ====================================================================
 // INSERTAR DATOS INICIALES - PRODUCTOS
 // ====================================================================
-print('🍰 Insertando productos...');
+print('Insertando productos...');
 
 const productos = [
   {
@@ -261,12 +261,12 @@ const productos = [
 ];
 
 const resultadoProductos = db.productos.insertMany(productos);
-print(`✅ ${resultadoProductos.insertedIds.length} productos insertados\n`);
+print(`${resultadoProductos.insertedIds.length} productos insertados\n`);
 
 // ====================================================================
 // VERIFICACIÓN
 // ====================================================================
-print('📊 Resumen de creación:');
+print('Resumen de creación:');
 print(`   - Categorías: ${db.categorias.countDocuments()}`);
 print(`   - Productos: ${db.productos.countDocuments()}`);
 print(`   - Clientes: ${db.clientes.countDocuments()}`);
@@ -274,13 +274,13 @@ print(`   - Pedidos: ${db.pedidos.countDocuments()}`);
 print('\n');
 
 // Listar índices creados
-print('🔍 Índices creados:');
+print('Índices creados:');
 print('   - productos: categoria._id, nombre (texto), precio, stock');
 print('   - clientes: correo (único), nombre');
 print('   - pedidos: cliente._id, fecha_pedido, estado');
 print('   - auditoria: fecha_evento, tipo+fecha_evento');
 print('\n');
 
-print('✅ Script ejecutado correctamente - Modelo creado!');
-print('💡 Ahora puedes insertar clientes y pedidos usando los scripts de CRUD');
+print('Script ejecutado correctamente - Modelo creado!');
+print('Ahora se pueden insertar clientes y pedidos usando los scripts de CRUD');
 
