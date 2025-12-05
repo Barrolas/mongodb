@@ -22,39 +22,61 @@
 
 **Pantalla:**
 - **Diapositiva:** "Modelo Oracle → MongoDB"
-  - Lado izquierdo: Diagrama Oracle (tablas y relaciones)
-  - Lado derecho: Diagrama MongoDB (colecciones)
-  - Tres decisiones clave en texto:
-    1. Detalles embebidos en pedidos
-    2. Denormalización estratégica
-    3. Referencias para entidades grandes
+  - **Lado izquierdo (50%):** Diagrama Oracle con tablas:
+    - CATEGORIAS (id_categoria PK, slug, nombre, icono)
+    - PRODUCTOS (id_producto PK, id_categoria FK → CATEGORIAS, nombre, precio, stock)
+    - CLIENTES (id_cliente PK, nombre, apellido_paterno, correo UNIQUE, etc.)
+    - PEDIDOS (id_pedido PK, id_cliente FK → CLIENTES, id_estado FK → PEDIDOS_ESTADOS, fecha_pedido, total)
+    - PEDIDOS_DETALLES (id_detalle PK, id_pedido FK → PEDIDOS, id_producto FK → PRODUCTOS, cantidad)
+    - PEDIDOS_ESTADOS (id_estado PK, estado)
+    - Mostrar relaciones con flechas (FK)
+  - **Lado derecho (50%):** Diagrama MongoDB con colecciones:
+    - categorias: Documento simple con _id, slug, nombre, icono
+    - productos: Documento con categoria embebida (parcialmente), nombre, precio, stock
+    - clientes: Documento simple con _id, nombre, apellido_paterno, correo, etc.
+    - pedidos: Documento con cliente referenciado, estado, fecha_pedido, total, y detalles embebidos como array
+  - **Parte inferior:** Tres decisiones clave:
+    1. Detalles embebidos en pedidos → Los detalles siempre se consultan con el pedido
+    2. Denormalización estratégica → Campos duplicados para consultas rápidas
+    3. Referencias para entidades grandes → Productos y clientes se referencian, no se embeben
 
 **Audio:**
-- Nicolás: "Nuestro sistema Oracle tenía estas tablas relacionadas con JOINs. En MongoDB, embebimos los detalles de pedidos dentro del documento pedido, denormalizamos campos como el nombre del cliente para consultas rápidas, y usamos referencias para productos y clientes. Esto permite una sola consulta para obtener un pedido completo."
+- Nicolás: "Nuestro sistema Oracle tenía estas tablas: categorías, productos con referencia a categorías, clientes, pedidos con referencia a clientes y estados, y pedidos_detalles que relaciona pedidos con productos. Todas estas relaciones se manejaban con llaves foráneas y JOINs. En MongoDB, embebimos los detalles de pedidos dentro del documento pedido como un array, denormalizamos campos como el nombre del cliente en el pedido para consultas rápidas, y usamos referencias para productos y clientes. Esto permite una sola consulta para obtener un pedido completo sin necesidad de JOINs."
 
 **Acción:**
-- Mostrar comparación lado a lado
-- Cursor señalando decisiones clave
+- Mostrar comparación lado a lado (Oracle vs MongoDB)
+- Cursor señalando cada tabla/colección
+- Señalar relaciones FK en Oracle
+- Señalar estructura embebida en MongoDB
+- Cursor señalando decisiones clave en la parte inferior
 - Transición rápida
 
 ---
 
-### TOMA 3.2: Estructura MongoDB (RÁPIDO)
+### TOMA 3.2: Estructura MongoDB en Compass (RÁPIDO)
 **Duración:** 0:30 - 0:45 seg
 
 **Pantalla:**
 - **MongoDB Compass:**
-  - Mostrar un documento de pedido expandido
-  - Mostrar el array de detalles embebidos
-  - Explicar estructura visualmente
+  1. Mostrar conexión: `mongodb://localhost:27017`
+  2. Mostrar base de datos: `mil_sabores`
+  3. Navegar a colección `pedidos`
+  4. Abrir un documento de pedido (clic en documento)
+  5. Expandir completamente el documento
+  6. Señalar campo `cliente` (objeto con referencia: _id y nombre_completo denormalizado)
+  7. Señalar campo `detalles` (array)
+  8. Expandir un elemento del array `detalles`
+  9. Mostrar que cada detalle tiene `producto` embebido (con _id, nombre, precio)
 
 **Audio:**
-- Nicolás: "Aquí vemos un pedido en MongoDB. El cliente está referenciado, y los detalles están embebidos como un array. Todo en un solo documento."
+- Nicolás: "Aquí en MongoDB Compass vemos un pedido real. El cliente está referenciado con su ID y nombre denormalizado. Los detalles están embebidos como un array, y cada detalle contiene el producto con sus datos. Todo en un solo documento, sin necesidad de hacer JOINs."
 
 **Acción:**
-- Abrir colección pedidos
-- Mostrar un documento
-- Expandir detalles
+- Abrir MongoDB Compass
+- Navegar a colección pedidos
+- Abrir y expandir un documento
+- Cursor señalando: cliente (referencia), detalles (array), producto embebido
+- Zoom en la estructura de detalles si es necesario
 - Transición rápida
 
 ---
