@@ -148,5 +148,5 @@ print('- updateOne() con $set: Estado de pedido cambiado');
 print(`- updateMany() con $set: ${resultadoUpdateMany.modifiedCount} productos actualizados`);
 print('\n');
 
-print('✅ Script UPDATE ejecutado correctamente!');
+print('Script UPDATE ejecutado correctamente!');
 

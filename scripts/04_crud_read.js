@@ -155,5 +155,5 @@ print(`- Total clientes: ${db.clientes.countDocuments()}`);
 print(`- Total pedidos: ${db.pedidos.countDocuments()}`);
 print('\n');
 
-print('✅ Script READ ejecutado correctamente!');
+print('Script READ ejecutado correctamente!');
 

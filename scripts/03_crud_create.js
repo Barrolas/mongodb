@@ -22,14 +22,14 @@ use('mil_sabores');
 print('=== CREATE: insertOne() - Cliente ===\n');
 
 const clienteNuevo = db.clientes.insertOne({
-  nombre: "María",
-  apellido_paterno: "García",
-  apellido_materno: "López",
-  correo: "maria.garcia@example.com",
-  direccion: "Av. Principal 456, Santiago",
-  fecha_nacimiento: new Date("1990-05-15"),
-  telefono: "+56987654321",
-  fecha_creacion: new Date()
+    nombre: "María",
+    apellido_paterno: "García",
+    apellido_materno: "López",
+    correo: "maria.garcia@example.com",
+    direccion: "Av. Principal 456, Santiago",
+    fecha_nacimiento: new Date("1990-05-15"),
+    telefono: "+56987654321",
+    fecha_creacion: new Date()
 });
 
 print('Cliente insertado:');
@@ -48,17 +48,17 @@ print('=== CREATE: insertOne() - Producto ===\n');
 const categoria = db.categorias.findOne({ slug: "tortas-cuadradas" });
 
 const productoNuevo = db.productos.insertOne({
-  categoria: {
-    _id: categoria._id,
-    nombre: categoria.nombre,
-    slug: categoria.slug
-  },
-  nombre: "Torta Cuadrada de Limón",
-  precio: 32990,
-  stock: 50,
-  descripcion_corta: "Torta fresca de limón con merengue italiano.",
-  descripcion_detallada: "Deliciosa torta cuadrada de limón con un toque ácido y fresco, decorada con merengue italiano.",
-  imagen: "https://example.com/torta-limon.jpg"
+    categoria: {
+        _id: categoria._id,
+        nombre: categoria.nombre,
+        slug: categoria.slug
+    },
+    nombre: "Torta Cuadrada de Limón",
+    precio: 32990,
+    stock: 50,
+    descripcion_corta: "Torta fresca de limón con merengue italiano.",
+    descripcion_detallada: "Deliciosa torta cuadrada de limón con un toque ácido y fresco, decorada con merengue italiano.",
+    imagen: "https://example.com/torta-limon.jpg"
 });
 
 print('Producto insertado:');
@@ -73,32 +73,32 @@ print('=== CREATE: insertMany() - Múltiples Productos ===\n');
 const categoriaCircular = db.categorias.findOne({ slug: "tortas-circulares" });
 
 const productosNuevos = db.productos.insertMany([
-  {
-    categoria: {
-      _id: categoriaCircular._id,
-      nombre: categoriaCircular.nombre,
-      slug: categoriaCircular.slug
+    {
+        categoria: {
+            _id: categoriaCircular._id,
+            nombre: categoriaCircular.nombre,
+            slug: categoriaCircular.slug
+        },
+        nombre: "Torta Circular de Frambuesa",
+        precio: 34990,
+        stock: 75,
+        descripcion_corta: "Torta circular con frambuesas frescas.",
+        descripcion_detallada: "Exquisita torta circular con frambuesas frescas y crema de frambuesa.",
+        imagen: "https://example.com/torta-frambuesa.jpg"
     },
-    nombre: "Torta Circular de Frambuesa",
-    precio: 34990,
-    stock: 75,
-    descripcion_corta: "Torta circular con frambuesas frescas.",
-    descripcion_detallada: "Exquisita torta circular con frambuesas frescas y crema de frambuesa.",
-    imagen: "https://example.com/torta-frambuesa.jpg"
-  },
-  {
-    categoria: {
-      _id: categoriaCircular._id,
-      nombre: categoriaCircular.nombre,
-      slug: categoriaCircular.slug
-    },
-    nombre: "Torta Circular de Zanahoria",
-    precio: 27990,
-    stock: 60,
-    descripcion_corta: "Torta circular de zanahoria con crema de queso.",
-    descripcion_detallada: "Clásica torta de zanahoria con especias y crema de queso casera.",
-    imagen: "https://example.com/torta-zanahoria.jpg"
-  }
+    {
+        categoria: {
+            _id: categoriaCircular._id,
+            nombre: categoriaCircular.nombre,
+            slug: categoriaCircular.slug
+        },
+        nombre: "Torta Circular de Zanahoria",
+        precio: 27990,
+        stock: 60,
+        descripcion_corta: "Torta circular de zanahoria con crema de queso.",
+        descripcion_detallada: "Clásica torta de zanahoria con especias y crema de queso casera.",
+        imagen: "https://example.com/torta-zanahoria.jpg"
+    }
 ]);
 
 print('Productos insertados:');
@@ -122,33 +122,33 @@ const subtotal2 = producto2.precio * cantidad2;
 const totalPedido = subtotal1 + subtotal2;
 
 const pedidoNuevo = db.pedidos.insertOne({
-  cliente: {
-    _id: idCliente,
-    nombre_completo: "María García López"
-  },
-  estado: "Pendiente",
-  fecha_pedido: new Date(),
-  total: totalPedido,
-  detalles: [
-    {
-      producto: {
-        _id: producto1._id,
-        nombre: producto1.nombre,
-        precio: producto1.precio
-      },
-      cantidad: cantidad1,
-      subtotal: subtotal1
+    cliente: {
+        _id: idCliente,
+        nombre_completo: "María García López"
     },
-    {
-      producto: {
-        _id: producto2._id,
-        nombre: producto2.nombre,
-        precio: producto2.precio
-      },
-      cantidad: cantidad2,
-      subtotal: subtotal2
-    }
-  ]
+    estado: "Pendiente",
+    fecha_pedido: new Date(),
+    total: totalPedido,
+    detalles: [
+        {
+            producto: {
+                _id: producto1._id,
+                nombre: producto1.nombre,
+                precio: producto1.precio
+            },
+            cantidad: cantidad1,
+            subtotal: subtotal1
+        },
+        {
+            producto: {
+                _id: producto2._id,
+                nombre: producto2.nombre,
+                precio: producto2.precio
+            },
+            cantidad: cantidad2,
+            subtotal: subtotal2
+        }
+    ]
 });
 
 print('Pedido insertado:');
@@ -171,5 +171,5 @@ print(`- Productos múltiples insertados: ${productosNuevos.insertedIds.length}`
 print(`- Pedido completo insertado: ${pedidoNuevo.acknowledged}`);
 print('\n');
 
-print('✅ Script CREATE ejecutado correctamente!');
+print('Script CREATE ejecutado correctamente!');
 
