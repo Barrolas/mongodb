@@ -1,0 +1,168 @@
+-- ==================================================================== --
+-- ====================== Pasteleria Mil Sabores ====================== --
+-- ===================== Evaluación Parcial N° 2 ====================== --
+-- ==================================================================== --
+
+-- =========== Triggers =========== --
+
+-- =============================================================================================
+-- TRIGGER 1: TR_PEDIDOS_DETALLES_AI_REDUCIR_STOCK (Nivel de Fila)
+--
+-- PROPOSITO:
+--   Reduce automáticamente el stock de un producto CADA VEZ que se inserta
+--   una nueva línea de detalle en un pedido.
+-- =============================================================================================
+CREATE OR REPLACE TRIGGER TR_PEDIDOS_DETALLES_AI_REDUCIR_STOCK
+AFTER INSERT ON PEDIDOS_DETALLES
+FOR EACH ROW
+DECLARE
+    V_STOCK_ACTUAL NUMBER;
+BEGIN
+    -- Obtenemos el stock actual para validación
+    SELECT stock INTO V_STOCK_ACTUAL
+    FROM PRODUCTOS
+    WHERE id_producto = :NEW.id_producto;
+
+    -- Verificamos si la cantidad del pedido supera el stock
+    IF V_STOCK_ACTUAL < :NEW.cantidad THEN
+        RAISE_APPLICATION_ERROR(-20001, 'Stock insuficiente para el producto ID ' || :NEW.id_producto);
+    END IF;
+
+    -- Actualizar el stock del producto, restando la cantidad del nuevo pedido
+    UPDATE PRODUCTOS
+    SET stock = stock - :NEW.cantidad
+    WHERE id_producto = :NEW.id_producto;
+    
+EXCEPTION
+    WHEN OTHERS THEN
+        -- Si algo falla (ej. el producto no existe), se detiene la transacción.
+        RAISE;
+END;
+/
+
+-- =============================================================================================
+-- TRIGGER 2: TR_CLIENTES_AIU_AUDITORIA (Nivel de Fila)
+--
+-- PROPOSITO:
+--   Auditoría detallada. Registra en CLIENTES_AUDITORIA el ID específico
+--   del cliente que se inserta o actualiza.
+-- =============================================================================================
+
+CREATE OR REPLACE TRIGGER TR_CLIENTES_AIU_AUDITORIA
+AFTER INSERT OR UPDATE ON CLIENTES
+FOR EACH ROW
+BEGIN
+    IF INSERTING THEN
+        INSERT INTO CLIENTES_AUDITORIA (id_cliente_afectado, accion, usuario_bd)
+        VALUES (:NEW.id_cliente, 'INSERT', USER);
+    
+    ELSIF UPDATING THEN
+        INSERT INTO CLIENTES_AUDITORIA (id_cliente_afectado, accion, usuario_bd)
+        VALUES (:NEW.id_cliente, 'UPDATE', USER);
+    END IF;
+END;
+/
+
+-- =============================================================================================
+-- TRIGGER 3: TR_PRODUCTOS_AUDIT_STMT (Nivel de Sentencia)
+--
+-- PROPOSITO:
+--   Auditoría general. Registra UN evento en AUDITORIA_SISTEMA cada vez que 
+--   una SENTENCIA (INSERT, DELETE o UPDATE de stock) afecta a la tabla PRODUCTOS.
+-- =============================================================================================
+
+CREATE OR REPLACE TRIGGER TR_PRODUCTOS_AUDIT_STMT
+AFTER INSERT OR DELETE OR UPDATE OF stock ON PRODUCTOS
+-- ¡NOTA: La ausencia de "FOR EACH ROW" lo convierte en un trigger de sentencia!
+BEGIN
+    IF INSERTING THEN
+        INSERT INTO AUDITORIA_SISTEMA (usuario_bd, evento, tabla_afectada)
+        VALUES (USER, 'INSERT_MASIVO_PRODUCTOS', 'PRODUCTOS');
+        
+    ELSIF UPDATING THEN
+        INSERT INTO AUDITORIA_SISTEMA (usuario_bd, evento, tabla_afectada)
+        VALUES (USER, 'UPDATE_MASIVO_STOCK', 'PRODUCTOS');
+        
+    ELSIF DELETING THEN
+        INSERT INTO AUDITORIA_SISTEMA (usuario_bd, evento, tabla_afectada)
+        VALUES (USER, 'DELETE_MASIVO_PRODUCTOS', 'PRODUCTOS');
+    END IF;
+END;
+/
+
+-- =============================================================================================
+-- TRIGGER 4: TR_PEDIDOS_ESTADO_AUDITORIA (Nivel de Fila)
+--
+-- PROPOSITO:
+--   Auditoría detallada y condicional. Registra CADA cambio de estado de un pedido
+--   en la tabla AUDITORIA_SISTEMA.
+-- =============================================================================================
+
+CREATE OR REPLACE TRIGGER TR_PEDIDOS_ESTADO_AUDITORIA
+AFTER UPDATE OF id_estado ON PEDIDOS
+FOR EACH ROW
+DECLARE
+    V_EVENTO_DESC VARCHAR2(100);
+BEGIN
+    -- Solo nos interesa si el estado realmente cambió
+    IF :OLD.id_estado != :NEW.id_estado THEN
+    
+        -- Bloque condicional para un mensaje de auditoría específico
+        IF :NEW.id_estado = 5 THEN -- Asumiendo 5 = 'Cancelado'
+            V_EVENTO_DESC := 'Pedido #' || :NEW.id_pedido || ' CANCELADO (de ' || :OLD.id_estado || ' a ' || :NEW.id_estado || ')';
+        ELSE
+            V_EVENTO_DESC := 'Pedido #' || :NEW.id_pedido || ' (de ' || :OLD.id_estado || ' a ' || :NEW.id_estado || ')';
+        END IF;
+
+        INSERT INTO AUDITORIA_SISTEMA (usuario_bd, evento, tabla_afectada)
+        VALUES (USER, V_EVENTO_DESC, 'PEDIDOS');
+        
+    END IF;
+END;
+/
+
+-- =============================================================================================
+-- TRIGGER 5: TR_PEDIDOS_AUDIT_STMT (Nivel de Sentencia)
+--
+-- PROPOSITO:
+--   Auditoría general. Registra UN evento en AUDITORIA_SISTEMA cada vez que
+--   una SENTENCIA (INSERT o DELETE) afecta a la tabla PEDIDOS.
+-- =============================================================================================
+
+CREATE OR REPLACE TRIGGER TR_PEDIDOS_AUDIT_STMT
+AFTER INSERT OR DELETE ON PEDIDOS
+-- ¡NOTA: La ausencia de "FOR EACH ROW" lo convierte en un trigger de sentencia!
+BEGIN
+    IF INSERTING THEN
+        INSERT INTO AUDITORIA_SISTEMA (usuario_bd, evento, tabla_afectada)
+        VALUES (USER, 'INSERT_MASIVO_PEDIDOS', 'PEDIDOS');
+        
+    ELSIF DELETING THEN
+        INSERT INTO AUDITORIA_SISTEMA (usuario_bd, evento, tabla_afectada)
+        VALUES (USER, 'DELETE_MASIVO_PEDIDOS', 'PEDIDOS');
+    END IF;
+END;
+/
+
+-- =============================================================================================
+-- TRIGGER 6 (NUEVO): TR_CLIENTES_AUDIT_STMT (Nivel de Sentencia)
+--
+-- PROPOSITO:
+--   Auditoría general. Registra UN evento en AUDITORIA_SISTEMA cada vez que
+--   una SENTENCIA (INSERT o DELETE) afecta a la tabla CLIENTES.
+-- =================================G============================================================
+
+CREATE OR REPLACE TRIGGER TR_CLIENTES_AUDIT_STMT
+AFTER INSERT OR DELETE ON CLIENTES
+-- ¡NOTA: La ausencia de "FOR EACH ROW" lo convierte en un trigger de sentencia!
+BEGIN
+    IF INSERTING THEN
+        INSERT INTO AUDITORIA_SISTEMA (usuario_bd, evento, tabla_afectada)
+        VALUES (USER, 'INSERT_MASIVO_CLIENTES', 'CLIENTES');
+        
+    ELSIF DELETING THEN
+        INSERT INTO AUDITORIA_SISTEMA (usuario_bd, evento, tabla_afectada)
+        VALUES (USER, 'DELETE_MASIVO_CLIENTES', 'CLIENTES');
+    END IF;
+END;
+/

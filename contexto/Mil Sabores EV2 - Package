@@ -1,0 +1,641 @@
+-- ==================================================================== --
+-- ====================== Pasteleria Mil Sabores ====================== --
+-- ===================== Evaluación Parcial N° 2 ====================== --
+-- ==================================================================== --
+
+-- =========== Creación del Package (HEAD) =========== --
+--
+-- PROPOSITO:
+--   Define la interfaz pública y centralizada para toda la 
+--   lógica de negocio de la pastelería. Este paquete gestionará
+--   clientes, pedidos, reportes y la configuración del sistema.
+--
+-- CUMPLE CON RÚBRICA EP2:
+--   - IE2.2.1: Construye un package (solución integral).
+--   - IE2.1.1: Define procedimientos con y sin parámetros.
+--   - IE2.1.3: Define funciones con y sin parámetros.
+-- ==================================================================== --
+
+CREATE OR REPLACE PACKAGE PKG_GESTOR_PEDIDOS AS
+
+    -- ================================================================= --
+    -- == 1. TIPOS DE DATOS COMPUESTOS ==
+    -- Propósito: Definir estructuras de datos personalizadas para 
+    -- manejar información compleja, como un carrito de compras, 
+    -- de manera eficiente y legible.
+    -- ================================================================= --
+    
+    -- TIPO RECORD: Define una estructura para un ítem del carrito de compra.
+    -- Agrupa el ID del producto y la cantidad en una sola variable.
+	
+    TYPE TIPO_PRODUCTO_COMPRA IS RECORD (
+        id_producto NUMBER,
+        cantidad    NUMBER
+    );
+
+    -- TIPO VARRAY: Define una colección (array) de TIPO_PRODUCTO_COMPRA.
+    -- Esto nos permite pasar un "carrito de compras" completo (con hasta
+    -- 100 productos diferentes) como un solo parámetro.
+	
+    TYPE TIPO_LISTA_PRODUCTOS IS VARRAY(100) OF TIPO_PRODUCTO_COMPRA;
+
+    -- ================================================================= --
+    -- == 2. EXCEPCIONES PERSONALIZADAS (Biblioteca de Errores) ==
+    -- ================================================================= --
+    -- Propósito: Estandariza el manejo de errores en todo el sistema.
+    -- ================================================================= --
+    
+    EX_STOCK_INSUFICIENTE   EXCEPTION; -- Error de negocio: La cantidad pedida supera el stock.
+    PRAGMA EXCEPTION_INIT(EX_STOCK_INSUFICIENTE, -20001);
+    
+    EX_PRODUCTO_NO_ENCONTRADO EXCEPTION; -- Error de datos: El id_producto no existe.
+    PRAGMA EXCEPTION_INIT(EX_PRODUCTO_NO_ENCONTRADO, -20002);
+    
+    EX_CLIENTE_NO_ENCONTRADO  EXCEPTION; -- Error de datos: El id_cliente no existe.
+    PRAGMA EXCEPTION_INIT(EX_CLIENTE_NO_ENCONTRADO, -20003);
+    
+    EX_CORREO_DUPLICADO       EXCEPTION; -- Error de integridad: El email ya está registrado.
+    PRAGMA EXCEPTION_INIT(EX_CORREO_DUPLICADO, -20004);
+    
+    EX_CANTIDAD_INVALIDA      EXCEPTION; -- Error de lógica: La cantidad (ej. stock) es <= 0.
+    PRAGMA EXCEPTION_INIT(EX_CANTIDAD_INVALIDA, -20005);
+    
+    EX_PEDIDO_NO_ENCONTRADO   EXCEPTION; -- Error de datos: El id_pedido no existe.
+    PRAGMA EXCEPTION_INIT(EX_PEDIDO_NO_ENCONTRADO, -20006);
+    
+    EX_ESTADO_PEDIDO_INVALIDO EXCEPTION; -- Error de datos: El id_estado no existe.
+    PRAGMA EXCEPTION_INIT(EX_ESTADO_PEDIDO_INVALIDO, -20007);
+    
+    EX_CONFIG_NO_INICIALIZADA EXCEPTION; -- Error de sistema: El constructor del paquete falló.
+    PRAGMA EXCEPTION_INIT(EX_CONFIG_NO_INICIALIZADA, -20010);
+
+    -- ================================================================= --
+    -- == 3. PROCEDIMIENTOS (Lógica de Negocio y Reportes) ==
+    -- ================================================================= --
+    -- Propósito: Define las "acciones" o "verbos" que nuestro 
+    -- sistema puede realizar. Son los puntos de entrada para ejecutar
+    -- la lógica de negocio.
+    -- ================================================================= --
+    
+    -- (Gestión de Clientes) Crea un nuevo cliente en la BD.
+	
+    PROCEDURE SP_CREAR_CLIENTE (
+        P_NOMBRE 			IN VARCHAR2,
+        P_APELLIDO_PATERNO 	IN VARCHAR2,
+        P_APELLIDO_MATERNO 	IN VARCHAR2,
+        P_CORREO 			IN VARCHAR2,
+        P_DIRECCION 		IN VARCHAR2,
+        P_FECHA_NACIMIENTO 	IN DATE,
+        P_TELEFONO 			IN VARCHAR2
+    );
+
+    -- (Gestión de Pedidos) Procesa un carrito de compra (VARRAY) y crea un pedido.
+    PROCEDURE SP_CREAR_NUEVO_PEDIDO (
+        P_ID_CLIENTE 		IN NUMBER,
+        P_LISTA_PRODUCTOS 	IN TIPO_LISTA_PRODUCTOS
+    );
+
+    -- (Gestión de Pedidos) Cambia el estado de un pedido (ej. de 'Pendiente' a 'Enviado').
+    PROCEDURE SP_ACTUALIZAR_ESTADO_PEDIDO (
+        P_ID_PEDIDO IN NUMBER,
+        P_ID_NUEVO_ESTADO IN NUMBER
+    );
+    
+    -- (Reportería) Procesa data masiva y guarda el reporte en una tabla.
+    PROCEDURE SP_GENERAR_REPORTE_VENTAS_DIARIAS (
+        P_FECHA IN DATE
+    );
+
+    -- (Reportería) Procesa data masiva y guarda el reporte en una tabla.
+    PROCEDURE SP_GENERAR_REPORTE_GANANCIAS_MES (
+        P_ANIO IN NUMBER,
+        P_MES  IN NUMBER
+    );
+    
+    -- (Reportería) Procesa data masiva y genera un reporte de inventario.
+    PROCEDURE SP_GENERAR_REPORTE_STOCK_CRITICO (
+        P_UMBRAL_STOCK IN NUMBER DEFAULT 20
+    );
+
+    -- (Auditoría) Muestra los logs de auditoría del día (herramienta de depuración).
+    PROCEDURE SP_VER_AUDITORIA_SISTEMA (
+        P_FECHA IN DATE DEFAULT NULL
+    );
+
+    -- ================================================================= --
+    -- == 4. FUNCIONES (Cálculos y Consultas) ==
+    -- ================================================================= --
+    -- Propósito: Define las "preguntas" o "cálculos" que nuestro 
+    -- sistema puede responder. Siempre devuelven un valor.
+    -- ================================================================= --
+    
+    -- (Cálculo) Calcula el total de un pedido existente.
+    FUNCTION FN_CALCULAR_TOTAL_PEDIDO (
+        P_ID_PEDIDO IN NUMBER
+    ) RETURN NUMBER;
+
+    -- (Consulta) Devuelve el stock actual de un producto.
+    FUNCTION FN_OBTENER_STOCK_DISPONIBLE (
+        P_ID_PRODUCTO IN NUMBER
+    ) RETURN NUMBER;
+
+    -- (Consulta) Devuelve el precio de un producto.
+    FUNCTION FN_OBTENER_PRECIO_PRODUCTO (
+        P_ID_PRODUCTO IN NUMBER
+    ) RETURN NUMBER;
+    
+    -- (Cálculo) Calcula la edad de un cliente.
+    FUNCTION FN_CALCULAR_EDAD_CLIENTE (
+        P_FECHA_NACIMIENTO IN DATE
+    ) RETURN NUMBER;
+
+    -- ================================================================= --
+    -- == 5. CONSTRUCTOR PÚBLICO y VARIABLES GLOBALES ==
+    -- ================================================================= --
+    -- Propósito: Cumple el requisito de "constructores" de la Rúbrica EP2.
+    -- Inicializa variables de configuración para que el paquete
+    -- las use durante la sesión del usuario.
+    -- ================================================================= --
+    
+    -- VARIABLE GLOBAL PÚBLICA:
+    -- Almacena el ID del estado "Pendiente" (ej: 1). Se carga al 
+    -- iniciar el paquete para evitar usar "números mágicos" (hard-coding)
+    -- en los procedimientos.
+	
+    g_id_estado_pendiente PEDIDOS_ESTADOS.id_estado%TYPE;
+    
+    -- CONSTRUCTOR PÚBLICO:
+    -- Procedimiento de inicialización que puede ser llamado manualmente
+    -- para cargar (o recargar) las variables globales.
+	
+    PROCEDURE SP_INICIALIZAR_PAQUETE;
+
+END PKG_GESTOR_PEDIDOS;
+/
+
+-- =========== Creación del Package (BODY) =========== --
+--
+-- PROPOSITO:
+--   Contiene la implementación de toda la lógica de negocio
+--   definida en el 'PACKAGE HEAD'. Aquí reside el código de todos
+--   los procedimientos y funciones.
+--
+-- CUMPLE CON RÚBRICA EP2:
+--   - IE2.2.1: Implementa constructores públicos y privados.
+--   - IE2.1.1/IE2.1.3: Contiene la lógica de los procedimientos y
+--     funciones para procesar información masiva.
+-- ==================================================================== --
+
+CREATE OR REPLACE PACKAGE BODY PKG_GESTOR_PEDIDOS AS
+
+    -- ================================================================= --
+    -- == VARIABLES PRIVADAS ==
+    -- ================================================================= --
+    -- Estas variables solo existen dentro del BODY.
+    -- Ningún script externo puede verlas o modificarlas.
+    
+    -- Variable privada que actúa como "bandera" (flag).
+    -- El constructor la pondrá en TRUE. Los procedimientos la
+    -- verificarán para asegurarse de que el paquete se inicializó.
+	
+    g_config_cargada_privada BOOLEAN := FALSE;
+
+    -- ================================================================= --
+    -- == IMPLEMENTACIÓN DE FUNCIONES (Cálculos y Consultas) ==
+    -- ================================================================= --
+
+    -- Propósito: Calcula el total de un pedido SUMANDO sus detalles.
+    FUNCTION FN_CALCULAR_TOTAL_PEDIDO (
+        P_ID_PEDIDO IN NUMBER
+    )
+    RETURN NUMBER
+    IS
+        -- Variable para acumular el total
+        V_TOTAL_PEDIDO NUMBER(10, 2) := 0;
+        
+        -- Cursor explícito para recorrer los productos del pedido
+        CURSOR C_DETALLES_PEDIDO IS
+            SELECT 	PD.cantidad, PR.precio
+            FROM	PEDIDOS_DETALLES PD
+            JOIN	PRODUCTOS PR ON PD.id_producto = PR.id_producto
+            WHERE	PD.id_pedido = P_ID_PEDIDO;
+                
+    BEGIN
+        -- Recorremos cada producto en el cursor
+        FOR R_DETALLE IN C_DETALLES_PEDIDO LOOP
+            -- Acumulamos el total (cantidad * precio unitario)
+            V_TOTAL_PEDIDO := V_TOTAL_PEDIDO + (R_DETALLE.cantidad * R_DETALLE.precio);
+        END LOOP;
+        
+        -- Devolvemos el total calculado
+        RETURN 	V_TOTAL_PEDIDO;
+        
+    EXCEPTION
+        -- Si ocurre cualquier error (ej. pedido no existe), devolvemos 0
+        WHEN OTHERS THEN
+            RETURN 0;
+    END FN_CALCULAR_TOTAL_PEDIDO;
+
+    ----------------------------------------------------------------------
+
+    -- Propósito: Consulta el stock actual de UN producto.
+    FUNCTION FN_OBTENER_STOCK_DISPONIBLE (
+        P_ID_PRODUCTO IN NUMBER
+    )
+    RETURN NUMBER
+    IS
+        V_STOCK_DISPONIBLE NUMBER(5);
+    BEGIN
+        -- Consulta directa a la tabla PRODUCTOS
+        SELECT 	stock
+        INTO 	V_STOCK_DISPONIBLE
+        FROM 	PRODUCTOS
+        WHERE	id_producto = P_ID_PRODUCTO;
+            
+        RETURN 	V_STOCK_DISPONIBLE;
+        
+    EXCEPTION
+        -- Si el producto no existe, asumimos que el stock es 0.
+        WHEN NO_DATA_FOUND THEN
+            RETURN 0;
+        WHEN OTHERS THEN
+            RETURN 0;
+    END FN_OBTENER_STOCK_DISPONIBLE;
+
+    ----------------------------------------------------------------------
+
+    -- Propósito: Consulta el precio de UN producto.
+    FUNCTION FN_OBTENER_PRECIO_PRODUCTO (
+        P_ID_PRODUCTO IN NUMBER
+    )
+    RETURN NUMBER
+    IS
+        V_PRECIO NUMBER(10, 2);
+    BEGIN
+        SELECT 	precio
+        INTO 	V_PRECIO
+        FROM 	PRODUCTOS
+        WHERE 	id_producto = P_ID_PRODUCTO;
+        
+        RETURN 	V_PRECIO;
+        
+    EXCEPTION
+        -- A diferencia del stock, si el producto no existe,
+        -- DEBEMOS lanzar un error, ya que es un fallo crítico.
+        -- Usamos la excepción personalizada que definimos en el HEAD.
+        WHEN NO_DATA_FOUND THEN
+            RAISE EX_PRODUCTO_NO_ENCONTRADO; 
+    END FN_OBTENER_PRECIO_PRODUCTO;
+
+    ----------------------------------------------------------------------
+
+    -- Propósito: Calcula la edad (en años) de un cliente.
+    FUNCTION FN_CALCULAR_EDAD_CLIENTE (
+        P_FECHA_NACIMIENTO IN DATE
+    )
+    RETURN NUMBER
+    IS
+        V_EDAD NUMBER;
+    BEGIN
+        -- Calcula los meses entre hoy y la fecha de nacimiento,
+        -- divide por 12 (para obtener años) y trunca
+        -- los decimales para obtener la edad cumplida.
+        V_EDAD := TRUNC(MONTHS_BETWEEN(SYSDATE, P_FECHA_NACIMIENTO) / 12);
+        RETURN 	V_EDAD;
+    END FN_CALCULAR_EDAD_CLIENTE;
+
+    -- ================================================================= --
+    -- == IMPLEMENTACIÓN DE PROCEDIMIENTOS (Lógica de Negocio) ==
+    -- ================================================================= --
+
+    -- Propósito: Registra un nuevo cliente en el sistema.
+    PROCEDURE SP_CREAR_CLIENTE (
+        P_NOMBRE 			IN VARCHAR2,
+        P_APELLIDO_PATERNO 	IN VARCHAR2,
+        P_APELLIDO_MATERNO 	IN VARCHAR2,
+        P_CORREO 			IN VARCHAR2,
+        P_DIRECCION 		IN VARCHAR2,
+        P_FECHA_NACIMIENTO 	IN DATE,
+        P_TELEFONO 			IN VARCHAR2
+    )
+    IS
+    BEGIN
+        -- Inserta la nueva fila en la tabla CLIENTES
+        INSERT INTO CLIENTES (nombre, apellido_paterno, apellido_materno, correo, direccion, fecha_nacimiento, telefono)
+        VALUES (P_NOMBRE, P_APELLIDO_PATERNO, P_APELLIDO_MATERNO, P_CORREO, P_DIRECCION, P_FECHA_NACIMIENTO, P_TELEFONO);
+        
+        -- Confirma la transacción (guarda permanentemente)
+        COMMIT;
+        
+    EXCEPTION
+        -- Si falla la restricción UNIQUE del correo...
+        WHEN DUP_VAL_ON_INDEX THEN
+            ROLLBACK; -- Deshace la inserción
+            RAISE EX_CORREO_DUPLICADO; -- Lanza nuestro error personalizado
+        WHEN OTHERS THEN
+            ROLLBACK; -- Deshace por cualquier otro error
+            RAISE; -- Relanza el error original
+    END SP_CREAR_CLIENTE;
+    
+    ----------------------------------------------------------------------
+    
+    -- Propósito: Procesa un "carrito de compras" (el VARRAY) y 
+    -- crea un pedido completo.
+    PROCEDURE SP_CREAR_NUEVO_PEDIDO (
+        P_ID_CLIENTE 		IN NUMBER,
+        P_LISTA_PRODUCTOS 	IN TIPO_LISTA_PRODUCTOS
+    )
+    IS
+        V_ID_PEDIDO 	NUMBER;
+        V_TOTAL_PEDIDO 	NUMBER(10, 2) := 0;
+        V_CLIENTE_EXISTE NUMBER;
+        V_STOCK_ACTUAL   NUMBER;
+    BEGIN
+        -- (Control de Constructor)
+        -- Verificamos si la variable privada es TRUE.
+        -- Si es FALSE, significa que el constructor falló o no se ejecutó.
+        IF NOT g_config_cargada_privada THEN
+            RAISE EX_CONFIG_NO_INICIALIZADA;
+        END IF;
+
+        -- 1. Verificar si el cliente existe
+        SELECT 	COUNT(*) INTO V_CLIENTE_EXISTE
+        FROM 	CLIENTES
+        WHERE 	id_cliente = P_ID_CLIENTE;
+        
+        IF V_CLIENTE_EXISTE = 0 THEN
+            RAISE EX_CLIENTE_NO_ENCONTRADO;
+        END IF;
+
+        -- 2. Insertar la cabecera del pedido
+        -- Usamos la VARIABLE GLOBAL g_id_estado_pendiente
+        -- que fue cargada por el constructor.
+        INSERT INTO PEDIDOS (id_cliente, id_estado, fecha_pedido, total)
+        VALUES (P_ID_CLIENTE, g_id_estado_pendiente, SYSDATE, 0) 
+        RETURNING id_pedido INTO V_ID_PEDIDO; -- Capturamos el nuevo ID
+
+        -- 3. Recorrer la lista de productos (el VARRAY)
+        FOR I IN 1..P_LISTA_PRODUCTOS.COUNT LOOP
+        
+            -- Verificamos el stock usando nuestra función
+            V_STOCK_ACTUAL := FN_OBTENER_STOCK_DISPONIBLE(P_LISTA_PRODUCTOS(I).id_producto);
+
+            -- Validamos el stock
+            IF V_STOCK_ACTUAL < P_LISTA_PRODUCTOS(I).cantidad THEN
+                RAISE EX_STOCK_INSUFICIENTE;
+            END IF;
+
+            -- Insertamos el detalle del pedido
+            INSERT INTO PEDIDOS_DETALLES (id_pedido, id_producto, cantidad)
+            VALUES (V_ID_PEDIDO, P_LISTA_PRODUCTOS(I).id_producto, P_LISTA_PRODUCTOS(I).cantidad);
+            -- (NOTA: El Trigger TR_PEDIDOS_DETALLES_AI_REDUCIR_STOCK se disparará
+            -- automáticamente aquí y reducirá el stock en la tabla PRODUCTOS).
+
+            -- Acumulamos el total del pedido
+            V_TOTAL_PEDIDO := V_TOTAL_PEDIDO + (FN_OBTENER_PRECIO_PRODUCTO(P_LISTA_PRODUCTOS(I).id_producto) * P_LISTA_PRODUCTOS(I).cantidad);
+        END LOOP;
+
+        -- 4. Actualizar el total final en la cabecera del pedido
+        UPDATE 	PEDIDOS
+        SET 	total = V_TOTAL_PEDIDO
+        WHERE 	id_pedido = V_ID_PEDIDO;
+        
+        -- Si todo salió bien, confirmamos la transacción
+        COMMIT;
+        
+    EXCEPTION
+        -- Si falla CUALQUIER paso (Stock, Cliente no existe, etc.)
+        -- revertimos TODA la transacción (ROLLBACK).
+        WHEN EX_CONFIG_NO_INICIALIZADA OR EX_CLIENTE_NO_ENCONTRADO OR EX_STOCK_INSUFICIENTE OR EX_PRODUCTO_NO_ENCONTRADO THEN
+            ROLLBACK;
+            RAISE; -- Relanza la excepción específica
+        WHEN OTHERS THEN
+            ROLLBACK;
+            RAISE_APPLICATION_ERROR(-20099, 'Error inesperado: ' || SQLERRM);
+    END SP_CREAR_NUEVO_PEDIDO;
+
+    ----------------------------------------------------------------------
+    
+    -- Propósito: Cambia el estado de un pedido (ej. 'Pendiente' -> 'Enviado')
+    PROCEDURE SP_ACTUALIZAR_ESTADO_PEDIDO (
+        P_ID_PEDIDO IN NUMBER,
+        P_ID_NUEVO_ESTADO IN NUMBER
+    )
+    IS
+        V_ESTADO_EXISTE NUMBER;
+    BEGIN
+        -- 1. Validar que el ID de estado exista en la tabla maestra
+        SELECT COUNT(*) INTO V_ESTADO_EXISTE 
+        FROM PEDIDOS_ESTADOS WHERE id_estado = P_ID_NUEVO_ESTADO;
+        
+        IF V_ESTADO_EXISTE = 0 THEN
+            RAISE EX_ESTADO_PEDIDO_INVALIDO;
+        END IF;
+        
+        -- 2. Actualizar el pedido
+        UPDATE PEDIDOS
+        SET id_estado = P_ID_NUEVO_ESTADO
+        WHERE id_pedido = P_ID_PEDIDO;
+        
+        -- 3. Validar si la actualización afectó a alguna fila
+        IF SQL%NOTFOUND THEN
+            -- Si no afectó a ninguna fila, el ID del pedido no existía
+            RAISE EX_PEDIDO_NO_ENCONTRADO;
+        END IF;
+        
+        COMMIT;
+        
+    EXCEPTION
+        WHEN EX_ESTADO_PEDIDO_INVALIDO OR EX_PEDIDO_NO_ENCONTRADO THEN
+            ROLLBACK;
+            RAISE;
+        WHEN OTHERS THEN
+            ROLLBACK;
+            RAISE_APPLICATION_ERROR(-20099, 'Error inesperado al actualizar estado: ' || SQLERRM);
+    END SP_ACTUALIZAR_ESTADO_PEDIDO;
+
+    -- ================================================================= --
+    -- == IMPLEMENTACIÓN DE REPORTES (Lógica de Datos Masivos) ==
+    -- ================================================================= --
+
+    -- Propósito: Procesa las ventas de un día y las guarda en una tabla de reportes.
+    PROCEDURE SP_GENERAR_REPORTE_VENTAS_DIARIAS (
+        P_FECHA IN DATE
+    )
+    IS
+        -- Usamos TRUNC para asegurarnos de que la fecha no tenga horas/minutos
+        V_FECHA_TRUNC DATE := TRUNC(P_FECHA);
+    BEGIN
+        -- Paso 1: Limpiamos el reporte antiguo para esa fecha.
+        -- Esto permite que el reporte se pueda ejecutar varias veces.
+        DELETE FROM REPORTE_VENTAS_DIARIAS
+        WHERE fecha_reporte = V_FECHA_TRUNC;
+        
+        -- Paso 2: Insertamos los datos procesados (información masiva).
+        -- Esta consulta lee todas las tablas de pedidos y productos,
+        -- las agrupa, suma y las inserta en la tabla de reportes.
+        INSERT INTO REPORTE_VENTAS_DIARIAS 
+            (fecha_reporte, id_producto, cantidad_total, subtotal_calculado)
+        SELECT
+            V_FECHA_TRUNC,
+            p.id_producto,
+            SUM(pd.cantidad) AS cantidad_total,
+            SUM(pd.cantidad * p.precio) AS subtotal_calculado
+        FROM PEDIDOS_DETALLES pd
+        JOIN PEDIDOS pe ON pd.id_pedido = pe.id_pedido
+        JOIN PRODUCTOS p ON pd.id_producto = p.id_producto
+        WHERE TRUNC(pe.fecha_pedido) = V_FECHA_TRUNC -- Filtra por el día
+        GROUP BY p.id_producto; -- Agrupa por producto
+        
+        COMMIT;
+    END SP_GENERAR_REPORTE_VENTAS_DIARIAS;
+
+    ----------------------------------------------------------------------
+
+    -- Propósito: Procesa las ganancias de un mes y las guarda en una tabla.
+    PROCEDURE SP_GENERAR_REPORTE_GANANCIAS_MES (
+        P_ANIO IN NUMBER,
+        P_MES  IN NUMBER
+    )
+    IS
+    BEGIN
+        -- Usamos MERGE (una operación de INSERT o UPDATE)
+        -- Esto es más eficiente que un DELETE + INSERT.
+        MERGE INTO REPORTE_GANANCIAS_MENSUALES r
+        USING (
+            -- Subconsulta: Calcula el total del mes
+            SELECT SUM(total) AS ganancia_total
+            FROM PEDIDOS
+            WHERE EXTRACT(YEAR FROM fecha_pedido) = P_ANIO
+              AND EXTRACT(MONTH FROM fecha_pedido) = P_MES
+        ) s
+        ON (r.anio_reporte = P_ANIO AND r.mes_reporte = P_MES) -- Condición de cruce
+        WHEN MATCHED THEN
+            -- Si el reporte del mes YA EXISTE, lo actualiza
+            UPDATE SET r.ganancia_total = s.ganancia_total
+        WHEN NOT MATCHED THEN
+            -- Si el reporte NO EXISTE, lo inserta
+            INSERT (anio_reporte, mes_reporte, ganancia_total)
+            VALUES (P_ANIO, P_MES, NVL(s.ganancia_total, 0));
+            
+        COMMIT;
+    END SP_GENERAR_REPORTE_GANANCIAS_MES;
+    
+    ----------------------------------------------------------------------
+    
+    -- Propósito: Genera un reporte de productos con bajo inventario.
+    PROCEDURE SP_GENERAR_REPORTE_STOCK_CRITICO (
+        P_UMBRAL_STOCK IN NUMBER DEFAULT 10
+    )
+    IS
+    BEGIN
+        -- 1. Limpiamos el reporte anterior
+        DELETE FROM REPORTE_STOCK_CRITICO;
+        
+        -- 2. Insertamos todos los productos cuyo stock sea
+        -- menor que el umbral (parámetro P_UMBRAL_STOCK).
+        INSERT INTO REPORTE_STOCK_CRITICO (id_producto, stock_actual)
+        SELECT id_producto, stock
+        FROM PRODUCTOS
+        WHERE stock < P_UMBRAL_STOCK;
+        
+        COMMIT;
+    END SP_GENERAR_REPORTE_STOCK_CRITICO;
+    
+    ----------------------------------------------------------------------
+    
+    -- Propósito: Herramienta de depuración para ver la auditoría
+    -- en consola (usando DBMS_OUTPUT).
+    PROCEDURE SP_VER_AUDITORIA_SISTEMA (
+        P_FECHA IN DATE DEFAULT NULL
+    )
+    IS
+        -- Si el parámetro P_FECHA es nulo, usamos la fecha de hoy.
+        V_FECHA_CONSULTA DATE := TRUNC(NVL(P_FECHA, SYSDATE));
+        V_HAY_REGISTROS BOOLEAN := FALSE;
+        
+        -- Cursor para buscar los eventos de auditoría
+        CURSOR C_AUDITORIA IS
+            SELECT TO_CHAR(fecha_evento, 'HH24:MI:SS') AS hora,
+                   usuario_bd,
+                   evento,
+                   tabla_afectada
+            FROM AUDITORIA_SISTEMA
+            WHERE TRUNC(fecha_evento) = V_FECHA_CONSULTA
+            ORDER BY fecha_evento DESC;
+            
+    BEGIN
+        -- Habilitamos la salida en consola
+        DBMS_OUTPUT.ENABLE(NULL);
+        DBMS_OUTPUT.PUT_LINE('================================================================');
+        DBMS_OUTPUT.PUT_LINE('         REPORTE DE AUDITORIA DEL SISTEMA');
+        DBMS_OUTPUT.PUT_LINE('================================================================');
+        DBMS_OUTPUT.PUT_LINE('Fecha consultada: ' || TO_CHAR(V_FECHA_CONSULTA, 'DD-MON-YYYY'));
+        DBMS_OUTPUT.PUT_LINE('----------------------------------------------------------------');
+        DBMS_OUTPUT.PUT_LINE('HORA     | USUARIO    | EVENTO                                   | TABLA');
+        DBMS_OUTPUT.PUT_LINE('---------|------------|------------------------------------------|-----------');
+
+        -- Recorremos el cursor y pintamos los resultados
+        FOR rec IN C_AUDITORIA LOOP
+            V_HAY_REGISTROS := TRUE;
+            DBMS_OUTPUT.PUT_LINE(
+                RPAD(rec.hora, 9, ' ') || '| ' ||
+                RPAD(rec.usuario_bd, 10, ' ') || ' | ' ||
+                RPAD(rec.evento, 40, ' ') || ' | ' ||
+                rec.tabla_afectada
+            );
+        END LOOP;
+
+        IF NOT V_HAY_REGISTROS THEN
+            DBMS_OUTPUT.PUT_LINE(CHR(10) || '*** No se encontraron registros de auditoría para esta fecha. ***');
+        END IF;
+        
+        DBMS_OUTPUT.PUT_LINE('================================================================');
+        
+    END SP_VER_AUDITORIA_SISTEMA;
+
+    -- ================================================================= --
+    -- == IMPLEMENTACIÓN DEL CONSTRUCTOR PÚBLICO ==
+    -- ================================================================= --
+    
+    -- Propósito: Contiene la lógica para inicializar las variables
+    -- globales del paquete.
+    PROCEDURE SP_INICIALIZAR_PAQUETE
+    IS
+    BEGIN
+        -- Cargamos el ID del estado 'Pendiente' en la variable global pública
+        SELECT id_estado 
+        INTO g_id_estado_pendiente
+        FROM PEDIDOS_ESTADOS
+        WHERE estado = 'Pendiente';
+        
+        -- Marcamos la variable privada como cargada
+        g_config_cargada_privada := TRUE;
+        
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            -- Si 'Pendiente' no existe en la tabla PEDIDOS_ESTADOS,
+            -- el paquete no puede funcionar.
+            g_config_cargada_privada := FALSE;
+            RAISE_APPLICATION_ERROR(-20010, 'Error Crítico: El estado "Pendiente" no existe en PEDIDOS_ESTADOS.');
+    END SP_INICIALIZAR_PAQUETE;
+
+-- ================================================================= --
+-- == CONSTRUCTOR PRIVADO DEL PACKAGE (Requisito Rúbrica EP2) ==
+-- ================================================================= --
+-- Este bloque de código ANÓNIMO se ejecuta automáticamente 
+-- UNA SOLA VEZ cuando el paquete se carga en la memoria
+-- por primera vez en la sesión del usuario.
+-- ================================================================= --
+BEGIN
+    -- Llamamos a nuestro "Constructor Público" para cargar la configuración.
+    SP_INICIALIZAR_PAQUETE;
+    
+EXCEPTION
+    WHEN OTHERS THEN
+        -- Si el constructor falla (ej. la tabla PEDIDOS_ESTADOS está vacía),
+        -- capturamos el error aquí para que la sesión no se caiga.
+        g_config_cargada_privada := FALSE;
+        RAISE_APPLICATION_ERROR(-20011, 'Error fatal al inicializar PKG_GESTOR_PEDIDOS: ' || SQLERRM);
+END PKG_GESTOR_PEDIDOS;
+/
