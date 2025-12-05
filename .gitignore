@@ -1,0 +1,48 @@
+# MongoDB
+*.log
+*.lock
+data/
+dump/
+*.pid
+*.sock
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Python (si usas scripts Python)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# Archivos temporales
+*.tmp
+*.temp
+.cache/
+
+# Archivos del sistema
+Thumbs.db
+desktop.ini
+
