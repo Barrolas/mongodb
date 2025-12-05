@@ -1,0 +1,436 @@
+# 🎬 Guion Condensado - Video Migración a MongoDB
+## Pastelería Mil Sabores - Versión 10 minutos
+
+**Duración Total:** 10-12 minutos  
+**Integrantes:** Nicole Chavez, Nicolás Barra
+
+**✅ YA GRABADO:** Escenas 1 y 2 (hasta JSON/BSON)
+
+---
+
+## 🎥 ESTRUCTURA CONDENSADA
+
+---
+
+# ESCENA 3: MODELAMIENTO (1:30 - 2:00 min) ⚡ CONDENSADO
+**Responsable:** Nicolás Barra
+
+---
+
+### TOMA 3.1: Modelo Oracle y Decisiones (COMBINADO)
+**Duración:** 0:45 - 1:00 seg
+
+**Pantalla:**
+- **Diapositiva:** "Modelo Oracle → MongoDB"
+  - Lado izquierdo: Diagrama Oracle (tablas y relaciones)
+  - Lado derecho: Diagrama MongoDB (colecciones)
+  - Tres decisiones clave en texto:
+    1. Detalles embebidos en pedidos
+    2. Denormalización estratégica
+    3. Referencias para entidades grandes
+
+**Audio:**
+- Nicolás: "Nuestro sistema Oracle tenía estas tablas relacionadas con JOINs. En MongoDB, embebimos los detalles de pedidos dentro del documento pedido, denormalizamos campos como el nombre del cliente para consultas rápidas, y usamos referencias para productos y clientes. Esto permite una sola consulta para obtener un pedido completo."
+
+**Acción:**
+- Mostrar comparación lado a lado
+- Cursor señalando decisiones clave
+- Transición rápida
+
+---
+
+### TOMA 3.2: Estructura MongoDB (RÁPIDO)
+**Duración:** 0:30 - 0:45 seg
+
+**Pantalla:**
+- **MongoDB Compass:**
+  - Mostrar un documento de pedido expandido
+  - Mostrar el array de detalles embebidos
+  - Explicar estructura visualmente
+
+**Audio:**
+- Nicolás: "Aquí vemos un pedido en MongoDB. El cliente está referenciado, y los detalles están embebidos como un array. Todo en un solo documento."
+
+**Acción:**
+- Abrir colección pedidos
+- Mostrar un documento
+- Expandir detalles
+- Transición rápida
+
+---
+
+# ESCENA 4: CRUD - CREATE (1:00 - 1:30 min) ⚡ CONDENSADO
+**Responsable:** Nicole Chavez
+
+---
+
+### TOMA 4.1: insertOne() y insertMany() (COMBINADO)
+**Duración:** 0:45 - 1:00 seg
+
+**Pantalla:**
+- **MongoDB Compass:**
+  1. Colección `clientes`
+  2. Consola: `db.clientes.insertOne({ nombre: "María", correo: "maria@example.com", ... })`
+  3. Ejecutar y mostrar resultado
+  4. Cambiar a `productos`
+  5. Consola: `db.productos.insertMany([{...}, {...}])`
+  6. Ejecutar y mostrar múltiples documentos insertados
+
+**Audio:**
+- Nicole: "insertOne inserta un documento y retorna su ID. insertMany inserta múltiples documentos de una vez. Ambos son muy simples de usar."
+
+**Acción:**
+- Ejecutar ambos comandos rápidamente
+- Mostrar resultados
+- Transición rápida
+
+---
+
+### TOMA 4.2: Pedido Completo (RÁPIDO)
+**Duración:** 0:30 - 0:45 seg
+
+**Pantalla:**
+- **MongoDB Compass:**
+  - Consola: Insertar pedido con detalles embebidos
+  - Mostrar documento creado
+  - Expandir detalles
+
+**Audio:**
+- Nicole: "Aquí creo un pedido completo con detalles embebidos. Todo en una sola operación, sin necesidad de múltiples tablas."
+
+**Acción:**
+- Ejecutar comando
+- Mostrar resultado
+- Transición
+
+---
+
+# ESCENA 5: CRUD - READ (2:00 - 2:30 min) ⚡ CONDENSADO
+**Responsable:** Nicolás Barra
+
+---
+
+### TOMA 5.1: find() y findOne() (RÁPIDO)
+**Duración:** 0:20 - 0:30 seg
+
+**Pantalla:**
+- **MongoDB Compass:**
+  - `db.productos.find()` - mostrar todos
+  - `db.productos.findOne({ nombre: "..." })` - mostrar uno
+
+**Audio:**
+- Nicolás: "find trae múltiples documentos, findOne trae solo el primero que coincide."
+
+**Acción:**
+- Ejecutar ambos rápidamente
+- Transición
+
+---
+
+### TOMA 5.2: Operadores $gt, $lt, $ne (COMBINADO)
+**Duración:** 0:30 - 0:45 seg
+
+**Pantalla:**
+- **MongoDB Compass:**
+  - Filtro visual o consola:
+    - `{ precio: { $gt: 20000 } }` - productos caros
+    - `{ stock: { $lt: 50 } }` - stock bajo
+    - `{ estado: { $ne: "Cancelado" } }` - pedidos activos
+  - Mostrar resultados de cada uno rápidamente
+
+**Audio:**
+- Nicolás: "$gt es mayor que, $lt es menor que, y $ne es no igual. Muy útiles para filtros numéricos y de estado."
+
+**Acción:**
+- Ejecutar los tres filtros uno tras otro
+- Mostrar resultados brevemente
+- Transición rápida
+
+---
+
+### TOMA 5.3: Operadores $in, $nin, $regex (COMBINADO)
+**Duración:** 0:30 - 0:45 seg
+
+**Pantalla:**
+- **MongoDB Compass:**
+  - Consola:
+    - `{ "categoria.slug": { $in: ["tortas-cuadradas", "tortas-circulares"] } }`
+    - `{ "categoria.slug": { $nin: ["productos-veganos"] } }`
+    - `{ nombre: { $regex: /chocolate/i } }`
+  - Mostrar resultados
+
+**Audio:**
+- Nicolás: "$in busca valores en una lista, $nin es lo opuesto, y $regex permite búsqueda de texto con expresiones regulares."
+
+**Acción:**
+- Ejecutar los tres comandos
+- Mostrar resultados
+- Transición
+
+---
+
+# ESCENA 6: CRUD - UPDATE (0:45 - 1:00 min) ⚡ CONDENSADO
+**Responsable:** Nicole Chavez
+
+---
+
+### TOMA 6.1: updateOne() y updateMany() (COMBINADO)
+**Duración:** 0:45 - 1:00 seg
+
+**Pantalla:**
+- **MongoDB Compass:**
+  1. Mostrar producto ANTES (stock: 100)
+  2. Consola: `db.productos.updateOne({ _id: ... }, { $inc: { stock: -5 } })`
+  3. Ejecutar y mostrar resultado
+  4. Refrescar y mostrar DESPUÉS (stock: 95)
+  5. Consola: `db.productos.updateMany({ categoria: "..." }, { $set: { descuento: 10 } })`
+  6. Ejecutar y mostrar modifiedCount
+
+**Audio:**
+- Nicole: "updateOne actualiza un documento. Aquí uso $inc para decrementar stock. updateMany actualiza múltiples documentos que coinciden con el criterio."
+
+**Acción:**
+- Mostrar antes/después claramente
+- Ejecutar ambos comandos
+- Transición rápida
+
+---
+
+# ESCENA 7: CRUD - DELETE (0:30 - 0:45 min) ⚡ CONDENSADO
+**Responsable:** Nicolás Barra
+
+---
+
+### TOMA 7.1: deleteOne() y deleteMany() (COMBINADO)
+**Duración:** 0:30 - 0:45 seg
+
+**Pantalla:**
+- **MongoDB Compass:**
+  1. Mostrar documento que se eliminará
+  2. Consola: `db.clientes.deleteOne({ correo: "test@example.com" })`
+  3. Ejecutar y mostrar resultado
+  4. Consola: `db.pedidos.deleteMany({ estado: "Cancelado", fecha: { $lt: ... } })`
+  5. Ejecutar y mostrar deletedCount
+  6. ⚠️ Advertencia breve: "Las eliminaciones son permanentes"
+
+**Audio:**
+- Nicolás: "deleteOne elimina un documento, deleteMany elimina todos los que coinciden. Recordar que son permanentes."
+
+**Acción:**
+- Ejecutar ambos rápidamente
+- Mostrar advertencia
+- Transición
+
+---
+
+# ESCENA 8: CONSULTAS AVANZADAS - AGGREGATE (2:30 - 3:00 min) ⚡ CONDENSADO
+**Responsable:** Ambos (1-2 consultas cada uno)
+
+---
+
+### TOMA 8.1: Consulta 1 - Top 5 Productos Más Vendidos
+**Responsable:** Nicole
+**Duración:** 0:45 - 1:00 seg
+
+**Pantalla:**
+- **MongoDB Compass - Pestaña Aggregations:**
+  - Construir pipeline visualmente (rápido):
+    1. $unwind: "$detalles"
+    2. $group: { _id: "$detalles.producto.nombre", total: { $sum: "$detalles.cantidad" }}
+    3. $sort: { total: -1 }
+    4. $limit: 5
+  - Ejecutar y mostrar resultado
+  - Mostrar comando completo en consola brevemente
+
+**Audio:**
+- Nicole: "Esta consulta encuentra los 5 productos más vendidos. $unwind descompone el array de detalles, $group agrupa por producto y suma cantidades, $sort ordena y $limit toma los primeros 5."
+
+**Acción:**
+- Construir pipeline rápidamente
+- Ejecutar
+- Mostrar resultado
+- Transición
+
+---
+
+### TOMA 8.2: Consulta 2 - Ventas por Categoría
+**Responsable:** Nicolás
+**Duración:** 0:45 - 1:00 seg
+
+**Pantalla:**
+- **MongoDB Compass - Consola:**
+  ```javascript
+  db.pedidos.aggregate([
+    { $unwind: "$detalles" },
+    { $group: {
+        _id: "$detalles.producto.categoria.nombre",
+        total_ventas: { $sum: "$detalles.subtotal" }
+    }},
+    { $sort: { total_ventas: -1 } }
+  ])
+  ```
+  - Ejecutar y mostrar resultados
+
+**Audio:**
+- Nicolás: "Esta consulta agrupa ventas por categoría. Similar pipeline: unwind, group por categoría sumando subtotales, y ordenamos por total de ventas."
+
+**Acción:**
+- Escribir comando (o copiar)
+- Ejecutar
+- Mostrar resultados
+- Transición
+
+---
+
+### TOMA 8.3: Consulta 3 - Clientes con Mayor Gasto
+**Responsable:** Nicole
+**Duración:** 0:30 - 0:45 seg
+
+**Pantalla:**
+- **MongoDB Compass - Consola:**
+  ```javascript
+  db.pedidos.aggregate([
+    { $group: {
+        _id: "$cliente.nombre_completo",
+        total_gastado: { $sum: "$total" },
+        cantidad_pedidos: { $sum: 1 }
+    }},
+    { $sort: { total_gastado: -1 } },
+    { $limit: 10 }
+  ])
+  ```
+  - Ejecutar y mostrar top 10
+
+**Audio:**
+- Nicole: "Esta consulta encuentra los clientes que más han gastado, agrupando por cliente y sumando el total de pedidos. Gracias a la denormalización, no necesitamos lookup."
+
+**Acción:**
+- Ejecutar comando
+- Mostrar resultados
+- Transición
+
+---
+
+### TOMA 8.4: Consulta 4 - Productos con Stock Crítico (OPCIONAL - si hay tiempo)
+**Responsable:** Nicolás
+**Duración:** 0:30 - 0:45 seg
+
+**Pantalla:**
+- **MongoDB Compass - Consola:**
+  ```javascript
+  db.productos.aggregate([
+    { $match: { stock: { $lt: 20 } } },
+    { $project: {
+        nombre: 1,
+        stock: 1,
+        "categoria.nombre": 1
+    }},
+    { $sort: { stock: 1 } }
+  ])
+  ```
+  - Ejecutar y mostrar
+
+**Audio:**
+- Nicolás: "Esta consulta encuentra productos con stock crítico usando $match para filtrar, $project para seleccionar campos, y $sort para ordenar."
+
+**Acción:**
+- Ejecutar rápidamente
+- Mostrar resultados
+- Transición
+
+---
+
+# ESCENA 9: CIERRE (0:30 - 0:45 min) ⚡ CONDENSADO
+
+---
+
+### TOMA 9.1: Resumen y Entregables (COMBINADO)
+**Duración:** 0:30 - 0:45 seg
+
+**Pantalla:**
+- **Diapositiva:** "Resumen"
+  - ✅ Migración Oracle → MongoDB
+  - ✅ CRUD completo demostrado
+  - ✅ Consultas avanzadas con aggregate()
+  - 📄 Script completo disponible
+
+**Audio:**
+- Ambos: "Hemos migrado nuestro sistema a MongoDB, demostrado todas las operaciones CRUD y consultas avanzadas. El script completo está disponible en el documento entregable. Gracias por su atención."
+
+**Acción:**
+- Mostrar diapositiva
+- Fade out
+
+---
+
+## ⏱️ DISTRIBUCIÓN DE TIEMPOS CONDENSADA
+
+| Escena | Duración | Responsable |
+|--------|----------|-------------|
+| 1. Introducción | 1:30 - 2:00 | Ambos ✅ GRABADO |
+| 2. Introducción MongoDB | 3:00 - 4:00 | Nicole ✅ GRABADO |
+| 3. Modelamiento | 1:30 - 2:00 | Nicolás ⚡ NUEVO |
+| 4. CRUD - CREATE | 1:00 - 1:30 | Nicole ⚡ NUEVO |
+| 5. CRUD - READ | 2:00 - 2:30 | Nicolás ⚡ NUEVO |
+| 6. CRUD - UPDATE | 0:45 - 1:00 | Nicole ⚡ NUEVO |
+| 7. CRUD - DELETE | 0:30 - 0:45 | Nicolás ⚡ NUEVO |
+| 8. Consultas Avanzadas | 2:30 - 3:00 | Ambos ⚡ NUEVO |
+| 9. Cierre | 0:30 - 0:45 | Ambos ⚡ NUEVO |
+| **TOTAL** | **10:15 - 13:00** | |
+
+**Tiempo ya grabado:** ~4:30 - 6:00 min  
+**Tiempo restante:** ~5:45 - 7:00 min  
+**Total estimado:** 10-13 minutos
+
+---
+
+## ✅ REQUISITOS DE RÚBRICA CUMPLIDOS
+
+### ✅ Explicación de MongoDB
+- ✅ Qué es NoSQL (grabado)
+- ✅ Diferencias SQL vs NoSQL (grabado)
+- ✅ Ventajas/Desventajas (grabado)
+- ✅ Estructura MongoDB (grabado)
+- ✅ JSON/BSON (grabado)
+
+### ✅ Modelamiento
+- ✅ Modelo Oracle mostrado
+- ✅ Decisiones de diseño explicadas
+- ✅ Modelo MongoDB mostrado
+- ✅ Comparación Oracle vs MongoDB
+
+### ✅ CRUD Completo
+- ✅ CREATE: insertOne() y insertMany()
+- ✅ READ: find(), findOne() con operadores ($gt, $lt, $ne, $in, $nin, $regex)
+- ✅ UPDATE: updateOne() y updateMany()
+- ✅ DELETE: deleteOne() y deleteMany()
+
+### ✅ Consultas Avanzadas
+- ✅ Al menos 3 consultas con aggregate()
+- ✅ Pipeline explicado
+- ✅ Operadores mostrados ($unwind, $group, $sort, $limit, $match, $project)
+
+---
+
+## 🎯 CAMBIOS REALIZADOS PARA CONDENSAR
+
+1. **Combinación de tomas:** Operaciones similares juntas
+2. **Reducción de tiempos:** Explicaciones más directas
+3. **Eliminación de redundancias:** Sin repeticiones
+4. **Transiciones rápidas:** Menos pausas
+5. **Mantiene requisitos:** Todo lo esencial de la rúbrica
+
+---
+
+## 📝 NOTAS PARA GRABACIÓN
+
+- **Ritmo:** Más rápido pero claro
+- **Pausas:** Mínimas, solo donde sea necesario
+- **Explicaciones:** Directas al punto
+- **MongoDB Compass:** Ejecutar comandos sin mucha pausa
+- **Resultados:** Mostrar brevemente y continuar
+
+---
+
+**¡Listo para grabar el resto! 🎬**
+
