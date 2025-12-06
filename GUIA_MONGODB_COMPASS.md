@@ -263,9 +263,10 @@ db.pedidos.deleteMany({
 
 **Etapa 2: $group**
 - Agregar stage: `$group`
-- `_id`: `"$detalles.producto._id"`
+- `_id`: `"$detalles.producto.nombre"`
 - Agregar campo: `total_vendido` con `$sum: "$detalles.cantidad"`
-- Explicar: "Agrupa por producto y suma cantidades"
+- Agregar campo: `total_ingresos` con `$sum: "$detalles.subtotal"`
+- Explicar: "Agrupa por nombre de producto y suma cantidades e ingresos"
 
 **Etapa 3: $sort**
 - Agregar stage: `$sort`
@@ -277,6 +278,11 @@ db.pedidos.deleteMany({
 - Valor: `5`
 - Explicar: "Solo los primeros 5"
 
+**Etapa 5: $project (Opcional)**
+- Agregar stage: `$project`
+- Renombrar campos para mejor legibilidad
+- Explicar: "Formatea los resultados con nombres más claros"
+
 **Método 2: Consola (Mostrar Comando Completo)**
 
 Después de construir el pipeline visualmente, mostrar el comando completo:
@@ -285,11 +291,18 @@ Después de construir el pipeline visualmente, mostrar el comando completo:
 db.pedidos.aggregate([
   { $unwind: "$detalles" },
   { $group: {
-      _id: "$detalles.producto._id",
-      total_vendido: { $sum: "$detalles.cantidad" }
+      _id: "$detalles.producto.nombre",
+      total_vendido: { $sum: "$detalles.cantidad" },
+      total_ingresos: { $sum: "$detalles.subtotal" }
   }},
   { $sort: { total_vendido: -1 } },
-  { $limit: 5 }
+  { $limit: 5 },
+  { $project: {
+      _id: 0,
+      producto: "$_id",
+      cantidad_vendida: "$total_vendido",
+      ingresos_totales: "$total_ingresos"
+  }}
 ])
 ```
 
@@ -390,10 +403,31 @@ db.pedidos.deleteMany({ estado: "Cancelado" })
 
 ### AGGREGATE
 ```javascript
-// Top productos
+// Top 5 productos más vendidos
 db.pedidos.aggregate([
   { $unwind: "$detalles" },
   { $group: {
+      _id: "$detalles.producto.nombre",
+      total_vendido: { $sum: "$detalles.cantidad" },
+      total_ingresos: { $sum: "$detalles.subtotal" }
+  }},
+  { $sort: { total_vendido: -1 } },
+  { $limit: 5 },
+  { $project: {
+      _id: 0,
+      producto: "$_id",
+      cantidad_vendida: "$total_vendido",
+      ingresos_totales: "$total_ingresos"
+  }}
+])
+
+// Productos filtrados con operadores
+db.productos.find({
+  "categoria.slug": { $in: ["tortas-cuadradas", "tortas-circulares"] },
+  precio: { $gt: 15000, $lt: 30000 },
+  nombre: { $regex: /torta/i }
+})
+```
       _id: "$detalles.producto.nombre",
       total: { $sum: "$detalles.cantidad" }
   }},

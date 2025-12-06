@@ -245,12 +245,12 @@
 
 ---
 
-# ESCENA 8: CONSULTAS AVANZADAS - AGGREGATE (2:30 - 3:00 min) ⚡ CONDENSADO
-**Responsable:** Ambos (1-2 consultas cada uno)
+# ESCENA 8: CONSULTAS AVANZADAS (1:30 - 2:00 min) ⚡ CONDENSADO
+**Responsable:** Ambos (1 consulta cada uno)
 
 ---
 
-### TOMA 8.1: Consulta 1 - Top 5 Productos Más Vendidos
+### TOMA 8.1: Consulta 1 - Top 5 Productos Más Vendidos (aggregate())
 **Responsable:** Nicole
 **Duración:** 0:45 - 1:00 seg
 
@@ -258,14 +258,24 @@
 - **MongoDB Compass - Pestaña Aggregations:**
   - Construir pipeline visualmente (rápido):
     1. $unwind: "$detalles"
-    2. $group: { _id: "$detalles.producto.nombre", total: { $sum: "$detalles.cantidad" }}
-    3. $sort: { total: -1 }
+    2. $group: { 
+         _id: "$detalles.producto.nombre", 
+         total_vendido: { $sum: "$detalles.cantidad" },
+         total_ingresos: { $sum: "$detalles.subtotal" }
+       }
+    3. $sort: { total_vendido: -1 }
     4. $limit: 5
+    5. $project: { 
+         _id: 0, 
+         producto: "$_id", 
+         cantidad_vendida: "$total_vendido",
+         ingresos_totales: "$total_ingresos"
+       }
   - Ejecutar y mostrar resultado
   - Mostrar comando completo en consola brevemente
 
 **Audio:**
-- Nicole: "Esta consulta encuentra los 5 productos más vendidos. $unwind descompone el array de detalles, $group agrupa por producto y suma cantidades, $sort ordena y $limit toma los primeros 5."
+- Nicole: "Esta consulta encuentra los 5 productos más vendidos usando aggregate. $unwind descompone el array de detalles, $group agrupa por nombre de producto y suma cantidades e ingresos, $sort ordena por cantidad vendida, $limit toma los primeros 5, y $project formatea los resultados con nombres más legibles."
 
 **Acción:**
 - Construir pipeline rápidamente
@@ -275,89 +285,30 @@
 
 ---
 
-### TOMA 8.2: Consulta 2 - Ventas por Categoría
+### TOMA 8.2: Consulta 2 - Productos con Filtros Combinados (find() con operadores)
 **Responsable:** Nicolás
 **Duración:** 0:45 - 1:00 seg
 
 **Pantalla:**
 - **MongoDB Compass - Consola:**
   ```javascript
-  db.pedidos.aggregate([
-    { $unwind: "$detalles" },
-    { $group: {
-        _id: "$detalles.producto.categoria.nombre",
-        total_ventas: { $sum: "$detalles.subtotal" }
-    }},
-    { $sort: { total_ventas: -1 } }
-  ])
+  db.productos.find({
+    "categoria.slug": { $in: ["tortas-cuadradas", "tortas-circulares"] },
+    precio: { $gt: 15000, $lt: 30000 },
+    nombre: { $regex: /torta/i }
+  })
   ```
   - Ejecutar y mostrar resultados
+  - Explicar cada operador usado
 
 **Audio:**
-- Nicolás: "Esta consulta agrupa ventas por categoría. Similar pipeline: unwind, group por categoría sumando subtotales, y ordenamos por total de ventas."
+- Nicolás: "Esta consulta usa find con operadores combinados. $in busca productos de categorías específicas, $gt y $lt definen un rango de precios entre 15 y 30 mil pesos, y $regex busca el texto 'torta' en el nombre de forma flexible, sin importar mayúsculas o minúsculas."
 
 **Acción:**
 - Escribir comando (o copiar)
 - Ejecutar
 - Mostrar resultados
-- Transición
-
----
-
-### TOMA 8.3: Consulta 3 - Clientes con Mayor Gasto
-**Responsable:** Nicole
-**Duración:** 0:30 - 0:45 seg
-
-**Pantalla:**
-- **MongoDB Compass - Consola:**
-  ```javascript
-  db.pedidos.aggregate([
-    { $group: {
-        _id: "$cliente.nombre_completo",
-        total_gastado: { $sum: "$total" },
-        cantidad_pedidos: { $sum: 1 }
-    }},
-    { $sort: { total_gastado: -1 } },
-    { $limit: 10 }
-  ])
-  ```
-  - Ejecutar y mostrar top 10
-
-**Audio:**
-- Nicole: "Esta consulta encuentra los clientes que más han gastado, agrupando por cliente y sumando el total de pedidos. Gracias a la denormalización, no necesitamos lookup."
-
-**Acción:**
-- Ejecutar comando
-- Mostrar resultados
-- Transición
-
----
-
-### TOMA 8.4: Consulta 4 - Productos con Stock Crítico (OPCIONAL - si hay tiempo)
-**Responsable:** Nicolás
-**Duración:** 0:30 - 0:45 seg
-
-**Pantalla:**
-- **MongoDB Compass - Consola:**
-  ```javascript
-  db.productos.aggregate([
-    { $match: { stock: { $lt: 20 } } },
-    { $project: {
-        nombre: 1,
-        stock: 1,
-        "categoria.nombre": 1
-    }},
-    { $sort: { stock: 1 } }
-  ])
-  ```
-  - Ejecutar y mostrar
-
-**Audio:**
-- Nicolás: "Esta consulta encuentra productos con stock crítico usando $match para filtrar, $project para seleccionar campos, y $sort para ordenar."
-
-**Acción:**
-- Ejecutar rápidamente
-- Mostrar resultados
+- Señalar cada operador usado
 - Transición
 
 ---
@@ -396,13 +347,13 @@
 | 5. CRUD - READ | 2:00 - 2:30 | Nicolás ⚡ NUEVO |
 | 6. CRUD - UPDATE | 0:45 - 1:00 | Nicole ⚡ NUEVO |
 | 7. CRUD - DELETE | 0:30 - 0:45 | Nicolás ⚡ NUEVO |
-| 8. Consultas Avanzadas | 2:30 - 3:00 | Ambos ⚡ NUEVO |
+| 8. Consultas Avanzadas | 1:30 - 2:00 | Ambos ⚡ NUEVO |
 | 9. Cierre | 0:30 - 0:45 | Ambos ⚡ NUEVO |
-| **TOTAL** | **10:15 - 13:00** | |
+| **TOTAL** | **9:15 - 11:30** | |
 
 **Tiempo ya grabado:** ~4:30 - 6:00 min  
-**Tiempo restante:** ~5:45 - 7:00 min  
-**Total estimado:** 10-13 minutos
+**Tiempo restante:** ~4:45 - 5:30 min  
+**Total estimado:** 9-11 minutos
 
 ---
 
@@ -428,9 +379,10 @@
 - ✅ DELETE: deleteOne() y deleteMany()
 
 ### ✅ Consultas Avanzadas
-- ✅ Al menos 3 consultas con aggregate()
-- ✅ Pipeline explicado
-- ✅ Operadores mostrados ($unwind, $group, $sort, $limit, $match, $project)
+- ✅ 1 consulta con aggregate() (Top 5 productos más vendidos)
+- ✅ 1 consulta con find() y operadores combinados ($in, $gt, $lt, $regex)
+- ✅ Pipeline explicado (aggregate: $unwind, $group, $sort, $limit, $project)
+- ✅ Operadores de find explicados
 
 ---
 
